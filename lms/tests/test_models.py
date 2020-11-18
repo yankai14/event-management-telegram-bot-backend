@@ -6,7 +6,8 @@ class EventModelTest(APITestCase):
 
     def setUp(self):
         Event.objects.create(
-            name="event1",
+            eventCode="T101",
+            name="testEvent",
             description="This is my description",
         )
-
+        
