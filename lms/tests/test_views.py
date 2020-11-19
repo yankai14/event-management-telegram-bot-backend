@@ -10,7 +10,7 @@ from lms.models import Event
 client = APIClient()
 
 
-class ListEventViewTest(APITestCase):
+class GetEventViewTest(APITestCase):
 
     def setUp(self):
 
@@ -19,6 +19,14 @@ class ListEventViewTest(APITestCase):
             "name": "testEvent1",
             "description": "This is my description"
         }
+
+    def test_get_specific_event(self):
+        
+        Event.objects.create(**self.validPayload)
+        url = f"{reverse('event-view')}?eventCode=T101"
+        response = client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_event_list_pagination(self):
 
@@ -31,6 +39,7 @@ class ListEventViewTest(APITestCase):
             reverse("event-view")
         )
         self.assertEqual(len(response.data["results"]), 50)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class CreateEventViewTest(APITestCase):
@@ -87,7 +96,8 @@ class CreateEventViewTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
-class UpdateEventTest(APITestCase):
+class UpdateEventTest(APITestCase):\
+
     def setUp(self):
 
         self.validPayload = {
@@ -106,11 +116,31 @@ class UpdateEventTest(APITestCase):
 
     def test_update_event(self):
 
-        url = f"{reverse('event-view')}?pk=1"
+        url = f"{reverse('event-view')}?eventCode=T101"
         response = client.put(
             url,
             data=json.dumps(self.updatedPayload),
             content_type='application/json'
         )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class DeleteEventTest(APITestCase):
+    
+    def setUp(self):
+
+        self.validPayload = {
+            "eventCode": "T101",
+            "name": "testEvent1",
+            "description": "This is my description"
+        }
+
+        self.testEvent = Event.objects.create(**self.validPayload)
+
+    def test_delete_event(self):
+
+        url = f"{reverse('event-view')}?eventCode=T101"
+        response = client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
