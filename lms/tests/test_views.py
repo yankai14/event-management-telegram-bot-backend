@@ -10,7 +10,29 @@ from lms.models import Event
 client = APIClient()
 
 
-class EventViewTest(APITestCase):
+class ListEventViewTest(APITestCase):
+
+    def setUp(self):
+        self.validPayload = {
+            "eventCode": "T101",
+            "name": "testEvent1",
+            "description": "This is my description"
+        }
+
+    def test_get_event_list_pagination(self):
+
+        for n in range(51):
+            payload = self.validPayload
+            payload["eventCode"] += str(n)
+            Event.objects.create(**payload)
+
+        response = client.get(
+            reverse("event-view")
+        )
+        self.assertEqual(len(response.data["results"]), 50)
+
+
+class CreateEventViewTest(APITestCase):
 
     def setUp(self):
         self.validPayload = {
@@ -24,28 +46,6 @@ class EventViewTest(APITestCase):
             "name": "invalidTestEvent",
             "description": "This is my description"
         }
-
-    def test_get_event_list(self):
-
-        Event.objects.create(**self.validPayload)
-
-        response = client.get(
-            reverse("event-view")
-        )
-        self.assertEqual(len(response.data["results"]), 1)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    def test_get_event_list_pagination(self):
-
-        for n in range(51):
-            payload = self.validPayload
-            payload["eventCode"] += str(n)
-            Event.objects.create(**payload)
-
-        response = client.get(
-            reverse("event-view")
-        )
-        self.assertEqual(len(response.data["results"]), 50)
 
 
     def test_create_valid_event(self):
