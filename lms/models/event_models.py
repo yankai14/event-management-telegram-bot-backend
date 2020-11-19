@@ -3,7 +3,7 @@ from django.db import models
 
 class Event(models.Model):
 
-    eventCode = models.CharField(max_length=30, blank=False, null=True)
+    eventCode = models.CharField(max_length=30, blank=False, null=True, unique=True)
     name = models.CharField(max_length=100, blank=False, null=True)
     description = models.TextField(default="")
 
