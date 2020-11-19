@@ -25,7 +25,6 @@ class EventView(mixins.ListModelMixin,
         """
         Return a list of events.
         """
-
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):

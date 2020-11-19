@@ -13,6 +13,7 @@ client = APIClient()
 class ListEventViewTest(APITestCase):
 
     def setUp(self):
+
         self.validPayload = {
             "eventCode": "T101",
             "name": "testEvent1",
@@ -35,6 +36,7 @@ class ListEventViewTest(APITestCase):
 class CreateEventViewTest(APITestCase):
 
     def setUp(self):
+
         self.validPayload = {
             "eventCode": "T101",
             "name": "testEvent1",
@@ -49,6 +51,7 @@ class CreateEventViewTest(APITestCase):
 
 
     def test_create_valid_event(self):
+
         response = client.post(
             reverse("event-view"),
             data=json.dumps(self.validPayload),
@@ -82,3 +85,32 @@ class CreateEventViewTest(APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class UpdateEventTest(APITestCase):
+    def setUp(self):
+
+        self.validPayload = {
+            "eventCode": "T101",
+            "name": "testEvent1",
+            "description": "This is my description"
+        }
+
+        self.updatedPayload = {
+            "eventCode": "T101",
+            "name": "updatedTestEvent",
+            "description": "This is my description"
+        }
+
+        self.testEvent = Event.objects.create(**self.validPayload)
+
+    def test_update_event(self):
+
+        url = f"{reverse('event-view')}?pk=1"
+        response = client.put(
+            url,
+            data=json.dumps(self.updatedPayload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
