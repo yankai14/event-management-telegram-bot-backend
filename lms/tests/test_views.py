@@ -3,6 +3,7 @@ from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
 from django.urls import reverse
 from lms.views import EventView
+from lms.models import Event
 
 
 client = APIClient()
@@ -23,12 +24,26 @@ class CreateEventViewTest(APITestCase):
             "description": "This is my description"
         }
 
-    def test_valid_create_event(self):
+    def test_get_event_list(self):
+
+        Event.objects.create(**self.validPayload)
+
+        response = client.get(
+            reverse("event-view")
+        )
+
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_create_valid_event(self):
         response = client.post(
-            reverse("create-event"),
+            reverse("event-view"),
             data=json.dumps(self.validPayload),
             content_type='application/json'
         )
 
-        self.assertEqual(json.loads(response.data), self.validPayload)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        proposed_response = response.data
+        del proposed_response['id']
+
+        self.assertDictEqual(self.validPayload, proposed_response)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
