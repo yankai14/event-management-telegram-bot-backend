@@ -1,13 +1,14 @@
+from django.views import generic
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework import authentication, permissions, mixins
 from lms.models.event_models import Event
-from lms.serializers.event_serializers import EventSerializer
+from lms.serializers.event_serializers import EventSerializer, EventInstanceSerializer
 
 # Create your views here.
 
 
-class EventView(mixins.ListModelMixin,
+class EventViewSet(mixins.ListModelMixin,
                 mixins.RetrieveModelMixin,
                 mixins.CreateModelMixin,
                 mixins.UpdateModelMixin,
@@ -28,7 +29,7 @@ class EventView(mixins.ListModelMixin,
         eventCode = self.request.query_params.get("eventCode", None)
         if eventCode is not None:
             self.kwargs["eventCode"] = eventCode
-        return super(EventView, self).get_object()
+        return super(EventViewSet, self).get_object()
     
     def get(self, request, *args, **kwargs):
         """
@@ -55,3 +56,23 @@ class EventView(mixins.ListModelMixin,
         Delete an event
         """
         return self.destroy(request, *args, **kwargs)
+
+
+class EventInstanceViewSet(mixins.ListModelMixin,
+                        mixins.RetrieveModelMixin,
+                        generics.GenericAPIView):
+
+    queryset = Event.objects.all()
+    serializer_class = EventInstanceSerializer
+    lookup_field = "eventInstanceCode"
+
+    def get_object(self):
+        eventInstanceCode = self.request.query_params.get("eventInstanceCode", None)
+        if eventInstanceCode is not None:
+            self.kwargs["eventInstanceCode"] = eventInstanceCode
+        return super(EventInstanceViewSet, self).get_object()
+
+    def get(self, request, *args, **kwargs):
+        if self.request.query_params.get("eventCode", None):
+            return self.retrieve(request, *args, **kwargs)
+        return self.list(request, *args, **kwargs)

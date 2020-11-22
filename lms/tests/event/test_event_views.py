@@ -1,10 +1,11 @@
 import json
 import random
+import datetime
+from django.utils import timezone
 from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
 from django.urls import reverse
-from lms.views import EventView
-from lms.models import Event
+from lms.models.event_models import Event, EventInstance
 
 
 client = APIClient()
@@ -96,7 +97,7 @@ class CreateEventViewTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
-class UpdateEventTest(APITestCase):\
+class UpdateEventViewTest(APITestCase):
 
     def setUp(self):
 
@@ -126,7 +127,7 @@ class UpdateEventTest(APITestCase):\
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class DeleteEventTest(APITestCase):
+class DeleteEventViewTest(APITestCase):
     
     def setUp(self):
 
@@ -144,3 +145,35 @@ class DeleteEventTest(APITestCase):
         response = client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+
+class GetEventInstanceViewTest(APITestCase):
+
+    def setUp(self):
+
+        testEvent = Event.objects.create(eventCode="T101", name="testEvent1", description="This is my description")
+        self.validPayload = {
+            "eventInstanceCode": "Test101",
+            "startDate": timezone.now(),
+            "endDate": timezone.now() + datetime.timedelta(days=10),
+            "location": "somewhere",
+            "dates": [timezone.now() + datetime.timedelta(days=10+n) for n in range(5)],
+            "isCompleted": False,
+            "event": testEvent
+        }
+        self.testEventInstance = EventInstance.objects.create(**self.validPayload)
+
+    def test_get_specific_event_instance(self):
+        
+        url = f"{reverse('event-instance-view')}?eventInstanceCode=T101"
+        response = client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+    
+    def test_get_event_instance_list(self):
+
+        response = client.get(
+            reverse("event-instance-view")
+        )
+        self.assertEqual(len(response.data["results"]), 1)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

@@ -11,6 +11,15 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 from pathlib import Path
+import os
+from django.conf import settings
+from dotenv import load_dotenv
+# settings.py
+
+load_dotenv()
+
+currentEnv = "TEST" # Change this to switch between environment
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -79,9 +88,14 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 DATABASES = {
+    # Edit to your postgres database settings
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': os.getenv(f"{currentEnv}_DB_NAME"), 
+        'USER': os.getenv(f"{currentEnv}_DB_USER"), 
+        'PASSWORD': os.getenv(f"{currentEnv}_DB_PASSWORD"),
+        'HOST': os.getenv(f"{currentEnv}_DB_HOST"), 
+        'PORT': os.getenv(f"{currentEnv}_DB_PORT"),
     }
 }
 
@@ -129,3 +143,6 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 50
 }
+
+
+AUTH_USER_MODEL = "lms.User" 

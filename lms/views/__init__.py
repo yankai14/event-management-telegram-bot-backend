@@ -1,0 +1,1 @@
+from lms.views.event_views import EventViewSet

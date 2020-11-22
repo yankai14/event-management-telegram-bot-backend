@@ -1,5 +1,5 @@
 from rest_framework.test import APITestCase
-from lms.models import Event
+from lms.models.event_models import Event
 
 
 class EventModelTest(APITestCase):

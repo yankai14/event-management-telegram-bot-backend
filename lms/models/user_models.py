@@ -1,29 +1,36 @@
 from django.db import models
-from django.contrib.auth import models as Auth
+from django.contrib.auth.models import AbstractUser
+from lms.models.event_models import EventInstance
 
 
-class Coordinator(models.Model):
-    ''' In an training session, these are trainers.'''
+class EventRole(models.Model):
 
-    user = models.OneToOneField(Auth.User, on_delete=models.CASCADE)
-    # team = models.ForeignKey('Team', on_delete=models.SET_NULL)
+    PARTICIPANT = 1
+    FACILITATOR = 2
+    EVENT_ADMIN = 3
+    COORDINATOR = 4
+    LEAD = 5
 
+    ROLE_CHOICES = (
+        (PARTICIPANT, 'participant'),
+        (FACILITATOR, 'facilitator'),
+        (EVENT_ADMIN, 'event_admin'),
+        (COORDINATOR, 'coordinator'),
+        (LEAD, 'lead')
+    )
 
-class Administrator(models.Model):
+    id = models.PositiveSmallIntegerField(choices=ROLE_CHOICES, primary_key=True)
+    eventInstance = models.ForeignKey("EventInstance", on_delete=models.CASCADE)
 
-    user = models.OneToOneField(Auth.User, on_delete=models.CASCADE)
-    pass
-
-
-class Participant(models.Model):
-
-    user = models.OneToOneField(Auth.User, on_delete=models.CASCADE)
-    pass
-
-
-class Team(models.Model):
-    pass
+    def __str__(self):
+      return self.get_id_display()
 
 
 class UserEnrollment(models.Model):
-    pass
+
+    user = models.ForeignKey("User", on_delete=models.CASCADE, null=True)
+
+
+class User(AbstractUser):
+
+    roles = models.ManyToManyField(EventRole)
