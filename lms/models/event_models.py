@@ -8,6 +8,9 @@ class Event(models.Model):
     name = models.CharField(max_length=100, blank=False, null=True)
     description = models.TextField(default="")
 
+    def __str__(self):
+        return self.eventCode
+
 
 class EventInstance(models.Model):
     ''' An EventInstance is a many to one relation with Event. 
@@ -23,3 +26,6 @@ class EventInstance(models.Model):
     )
     isCompleted = models.BooleanField(default=False)
     event = models.ForeignKey('Event', null=True, on_delete=models.SET_NULL)
+
+    def __str__(self):
+        return self.eventInstanceCode

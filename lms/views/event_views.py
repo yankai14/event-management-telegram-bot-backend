@@ -1,8 +1,10 @@
-from django.views import generic
+import json
+from django.shortcuts import get_object_or_404
 from rest_framework import generics
 from rest_framework.response import Response
+from rest_framework import status
 from rest_framework import authentication, permissions, mixins
-from lms.models.event_models import Event
+from lms.models.event_models import Event, EventInstance
 from lms.serializers.event_serializers import EventSerializer, EventInstanceSerializer
 
 # Create your views here.
@@ -76,3 +78,13 @@ class EventInstanceViewSet(mixins.ListModelMixin,
         if self.request.query_params.get("eventCode", None):
             return self.retrieve(request, *args, **kwargs)
         return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        eventCode = request.query_params.get("eventCode", None)
+        if eventCode is not None:
+            event = get_object_or_404(Event, eventCode=eventCode)
+            request.data["event"] = event
+
+        eventInstance = EventInstance.objects.create(**request.data)
+        responseData = EventInstanceSerializer(eventInstance).data
+        return Response(data=responseData, status=status.HTTP_201_CREATED)

@@ -1,3 +1,4 @@
+from django.contrib.postgres import fields
 from rest_framework import serializers
 from lms.models import Event, EventInstance
 
