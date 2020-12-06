@@ -16,7 +16,7 @@ class EventInstance(models.Model):
     ''' An EventInstance is a many to one relation with Event. 
     Eg A module has many tutorial groups. '''
     
-    eventInstanceCode = models.CharField(max_length=30, blank=False, null=True)
+    eventInstanceCode = models.CharField(max_length=100, blank=False, null=True, unique=True)
     startDate = models.DateTimeField(blank=False, null=True)
     endDate = models.DateTimeField(blank=False, null=True)
     location = models.CharField(max_length=250, blank=False, null=True)
@@ -25,7 +25,7 @@ class EventInstance(models.Model):
         null=True
     )
     isCompleted = models.BooleanField(default=False)
-    event = models.ForeignKey('Event', null=True, on_delete=models.SET_NULL)
+    event = models.ForeignKey('Event', null=True, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.eventInstanceCode

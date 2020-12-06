@@ -163,9 +163,16 @@ class GetEventInstanceViewTest(APITestCase):
         }
         self.testEventInstance = EventInstance.objects.create(**self.validPayload)
 
-    def test_get_specific_event_instance(self):
+    def test_get_specific_event_instance_by_event_code(self):
         
-        url = f"{reverse('event-instance-view')}?eventInstanceCode=T101"
+        url = f"{reverse('event-instance-view')}?eventInstanceCode=Test101"
+        response = client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_specific_event_instance_by_isCompleted(self):
+        
+        url = f"{reverse('event-instance-view')}?isCompleted=False"
         response = client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -183,7 +190,7 @@ class CreateEventInstanceViewTest(APITestCase):
 
     def setUp(self):
 
-        testEvent = Event.objects.create(eventCode="T101", name="testEvent1", description="This is my description")
+        Event.objects.create(eventCode="T101", name="testEvent1", description="This is my description")
         self.validPayload = {
             "eventInstanceCode": "Test101",
             "startDate": str(timezone.now()),
@@ -192,7 +199,6 @@ class CreateEventInstanceViewTest(APITestCase):
             "dates": [str(timezone.now() + datetime.timedelta(days=10+n)) for n in range(5)],
             "isCompleted": False,
         }
-        print(self.validPayload)
 
     def test_create_valid_event(self):
 

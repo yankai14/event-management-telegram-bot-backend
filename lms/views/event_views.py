@@ -1,9 +1,12 @@
-import json
-from django.shortcuts import get_object_or_404
+from distutils.util import strtobool
+from django.core.exceptions import ObjectDoesNotExist
+from django.http.response import HttpResponseBadRequest
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework import authentication, permissions, mixins
+from rest_framework import  mixins
+from backend.utils import MultipleFieldLookupORMixin
 from lms.models.event_models import Event, EventInstance
 from lms.serializers.event_serializers import EventSerializer, EventInstanceSerializer
 
@@ -33,6 +36,7 @@ class EventViewSet(mixins.ListModelMixin,
             self.kwargs["eventCode"] = eventCode
         return super(EventViewSet, self).get_object()
     
+    @csrf_exempt
     def get(self, request, *args, **kwargs):
         """
         Return a list of events.
@@ -60,31 +64,41 @@ class EventViewSet(mixins.ListModelMixin,
         return self.destroy(request, *args, **kwargs)
 
 
-class EventInstanceViewSet(mixins.ListModelMixin,
+class EventInstanceViewSet(
+                        MultipleFieldLookupORMixin,
+                        mixins.ListModelMixin,
                         mixins.RetrieveModelMixin,
+                        mixins.CreateModelMixin,
+                        mixins.DestroyModelMixin,
                         generics.GenericAPIView):
 
-    queryset = Event.objects.all()
+    queryset = EventInstance.objects.all()
     serializer_class = EventInstanceSerializer
-    lookup_field = "eventInstanceCode"
+    lookup_fields = ("eventInstanceCode", "isCompleted")
 
     def get_object(self):
         eventInstanceCode = self.request.query_params.get("eventInstanceCode", None)
+        isCompleted = self.request.query_params.get("isCompleted", None)
         if eventInstanceCode is not None:
             self.kwargs["eventInstanceCode"] = eventInstanceCode
+        if isCompleted=="True" or isCompleted=="False":
+            isCompleted = bool(strtobool(isCompleted))
+        else:
+            self.kwargs["isCompleted"] = None
         return super(EventInstanceViewSet, self).get_object()
 
     def get(self, request, *args, **kwargs):
-        if self.request.query_params.get("eventCode", None):
+        if ("isCompleted" or "eventInstanceCode") in self.request.query_params.keys():
             return self.retrieve(request, *args, **kwargs)
+    
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        eventCode = request.query_params.get("eventCode", None)
-        if eventCode is not None:
-            event = get_object_or_404(Event, eventCode=eventCode)
-            request.data["event"] = event
+        try:
+            response = self.create(request, *args, **kwargs)
+            return response
+        except ObjectDoesNotExist:
+            return Response({"detail": "event of specified eventCode does not exist"}, status=status.HTTP_400_BAD_REQUEST)
 
-        eventInstance = EventInstance.objects.create(**request.data)
-        responseData = EventInstanceSerializer(eventInstance).data
-        return Response(data=responseData, status=status.HTTP_201_CREATED)
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
