@@ -1,6 +1,6 @@
 from distutils.util import strtobool
 import json
-from django.db.models import query
+from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import generics, viewsets
 from rest_framework.response import Response
@@ -8,6 +8,7 @@ from rest_framework import status
 from rest_framework import  mixins
 from lms.models.event_models import Event, EventInstance
 from lms.serializers.event_serializers import EventSerializer, EventInstanceSerializer
+from backend.exception_classes import InvalidQueryStringParameter, ModelObjectDoesNotExist
 
 # Create your views here.
 
@@ -63,58 +64,24 @@ class EventViewSet(mixins.ListModelMixin,
         return self.destroy(request, *args, **kwargs)
 
 
-'''class EventInstanceViewSet(
-                        MultipleFieldLookupORMixin,
-                        mixins.ListModelMixin,
-                        mixins.RetrieveModelMixin,
-                        mixins.CreateModelMixin,
-                        mixins.DestroyModelMixin,
-                        generics.GenericAPIView):
-
-    queryset = EventInstance.objects.all()
-    serializer_class = EventInstanceSerializer
-    lookup_fields = ("eventInstanceCode", "isCompleted")
-
-    def get_object(self):
-        eventInstanceCode = self.request.query_params.get("eventInstanceCode", None)
-        isCompleted = self.request.query_params.get("isCompleted", None)
-        if eventInstanceCode is not None:
-            self.kwargs["eventInstanceCode"] = eventInstanceCode
-        if isCompleted=="True" or isCompleted=="False":
-            isCompleted = bool(strtobool(isCompleted))
-        else:
-            self.kwargs["isCompleted"] = None
-        return super(EventInstanceViewSet, self).get_object()
-
-    def get(self, request, *args, **kwargs):
-        if "eventInstanceCode" in self.request.query_params.keys():
-            return self.retrieve(request, *args, **kwargs)
-    
-        return self.list(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        try:
-            response = self.create(request, *args, **kwargs)
-            return response
-        except ObjectDoesNotExist:
-            return Response({"detail": "event of specified eventCode does not exist"}, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, *args, **kwargs):
-        return self.destroy(request, *args, **kwargs)'''
-
-
 class EventInstanceViewSet(viewsets.GenericViewSet):
     
     def list(self, request, *args, **kwargs):
         event = request.query_params.get("event", None)
         isCompleted =request.query_params.get("isCompleted", None)
         if event and isCompleted is not None:
-            isCompleted = bool(strtobool(isCompleted))
+            try:
+                isCompleted = bool(strtobool(isCompleted))
+            except ValueError:
+                raise InvalidQueryStringParameter("Invalid isCompleted parameter")
             queryset = EventInstance.objects.filter(isCompleted=isCompleted, event__eventCode=event)
         elif event:
             queryset = EventInstance.objects.filter(event__eventCode=event)
         elif isCompleted is not None:
-            isCompleted = bool(strtobool(isCompleted))
+            try:
+                isCompleted = bool(strtobool(isCompleted))
+            except ValueError:
+                raise InvalidQueryStringParameter("Invalid isCompleted parameter")
             queryset = EventInstance.objects.filter(isCompleted=isCompleted)
         else:
             queryset = EventInstance.objects.all()
@@ -123,8 +90,11 @@ class EventInstanceViewSet(viewsets.GenericViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def retrieve(self, request, *args, **kwargs):
-        eventInstanceCode = request.query_params.get("event-instance", None)
-        queryset = EventInstance.objects.get(eventInstanceCode)
+        eventInstanceCode = kwargs["eventInstanceCode"]
+        try:
+            queryset = EventInstance.objects.get(eventInstanceCode=eventInstanceCode)
+        except ObjectDoesNotExist:
+            raise ModelObjectDoesNotExist("eventInstanceCode does not exist")
         serializer = EventInstanceSerializer(queryset, many=False)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -136,8 +106,11 @@ class EventInstanceViewSet(viewsets.GenericViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def destroy(self, request, *args, **kwargs):
-        eventInstanceCode = request.query_params.get("event-instance", None)
-        eventInstance = EventInstance.objects.get(eventInstanceCode)
+        eventInstanceCode = request.query_params.get("eventInstanceCode", None)
+        try:
+            eventInstance = EventInstance.objects.get(eventInstanceCode=eventInstanceCode)
+        except ObjectDoesNotExist:
+            raise ModelObjectDoesNotExist("eventInstanceCode does not exist")
         eventInstance.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
