@@ -165,7 +165,7 @@ class GetEventInstanceViewTest(APITestCase):
 
     def test_get_specific_event_instance_by_event_code(self):
         
-        url = f"{reverse('event-instance-view')}?eventInstanceCode=Test101"
+        url = f"{reverse('event-instance-view')}?eventCode=Test101"
         response = client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -182,7 +182,7 @@ class GetEventInstanceViewTest(APITestCase):
         response = client.get(
             reverse("event-instance-view")
         )
-        self.assertEqual(len(response.data["results"]), 1)
+        self.assertEqual(len(response.data), 1)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
@@ -192,6 +192,7 @@ class CreateEventInstanceViewTest(APITestCase):
 
         Event.objects.create(eventCode="T101", name="testEvent1", description="This is my description")
         self.validPayload = {
+            "eventCode": "T101",
             "eventInstanceCode": "Test101",
             "startDate": str(timezone.now()),
             "endDate": str(timezone.now() + datetime.timedelta(days=10)),
@@ -202,7 +203,7 @@ class CreateEventInstanceViewTest(APITestCase):
 
     def test_create_valid_event(self):
 
-        url = f"{reverse('event-instance-view')}?eventCode=T101"
+        url = reverse('event-instance-view')
         response = client.post(
             url,
             data=json.dumps(self.validPayload),

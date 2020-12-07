@@ -17,8 +17,7 @@ class EventInstanceSerializer(serializers.ModelSerializer):
         fields = "__all__"
         extra_kwargs = {"eventCode": {"read_only": True}}
 
-    def create(self, validated_data):
-        eventCode = self.context.get("request").query_params.get("eventCode")
+    def create(self, validated_data, eventCode):
         event = Event.objects.get(eventCode=eventCode)
         validated_data["event"] = event
         return super(EventInstanceSerializer, self).create(validated_data)
