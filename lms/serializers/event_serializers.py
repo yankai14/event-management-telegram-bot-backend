@@ -29,5 +29,6 @@ class EventInstanceSerializer(serializers.ModelSerializer):
 
         if EventInstance.objects.filter(eventInstanceCode=validated_data["eventInstanceCode"]).exists():
             raise ModelObjectAlreadyExist(f"EventInstance already exist")
+
         return super(EventInstanceSerializer, self).create(validated_data)
         

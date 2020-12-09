@@ -24,6 +24,7 @@ class EventInstance(models.Model):
         models.DateTimeField(blank=False, null=True),
         null=True
     )
+    fee = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     isCompleted = models.BooleanField(default=False)
     event = models.ForeignKey('Event', null=True, on_delete=models.CASCADE)
 
