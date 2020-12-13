@@ -10,6 +10,7 @@ from lms.serializers.user_serializers import UserSerializer
 class UserViewSet(mixins.ListModelMixin,
                 mixins.RetrieveModelMixin,
                 mixins.CreateModelMixin,
+                mixins.DestroyModelMixin,
                 generics.GenericAPIView):
     
     queryset = User.objects.all()
@@ -33,3 +34,11 @@ class UserViewSet(mixins.ListModelMixin,
             return response
         except IntegrityError:
             return Response({"detail": "Username already exist"}, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, *args, **kwargs):
+        """
+        Delete an event
+        """
+        return self.destroy(request, *args, **kwargs)
+
+    

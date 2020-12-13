@@ -10,6 +10,7 @@ class GetUserViewTest(APITestCase):
     def setUp(self):
 
         self.validPayload = {
+            "username": "12419481",
             "email": "hello@gmail.com",
             "password": "password",
             "first_name": "Hello",
