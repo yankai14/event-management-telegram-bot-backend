@@ -2,6 +2,7 @@ from distutils.util import strtobool
 import json
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework import permissions
 from rest_framework import generics, viewsets
 from rest_framework.response import Response
 from rest_framework import status
@@ -29,13 +30,14 @@ class EventViewSet(mixins.ListModelMixin,
     queryset = Event.objects.all()
     serializer_class = EventSerializer
     lookup_field = "eventCode"
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self):
         eventCode = self.request.query_params.get("eventCode", None)
         if eventCode is not None:
             self.kwargs["eventCode"] = eventCode
         return super(EventViewSet, self).get_object()
-    
+
     @csrf_exempt
     def get(self, request, *args, **kwargs):
         """
@@ -113,6 +115,3 @@ class EventInstanceViewSet(viewsets.GenericViewSet):
             raise ModelObjectDoesNotExist("eventInstanceCode does not exist")
         eventInstance.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-

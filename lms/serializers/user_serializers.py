@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from lms.models.user_models import User
 from django.utils.translation import ugettext_lazy as _
-from rest_framework.exceptions import ValidationError
 from rest_framework.utils.representation import smart_repr
 
 
