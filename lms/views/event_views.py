@@ -30,7 +30,12 @@ class EventViewSet(mixins.ListModelMixin,
     queryset = Event.objects.all()
     serializer_class = EventSerializer
     lookup_field = "eventCode"
-    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [permissions.IsAuthenticated()]
+        else:
+            return [permissions.IsAdminUser()]
 
     def get_object(self):
         eventCode = self.request.query_params.get("eventCode", None)
@@ -67,6 +72,12 @@ class EventViewSet(mixins.ListModelMixin,
 
 
 class EventInstanceViewSet(viewsets.GenericViewSet):
+
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [permissions.IsAuthenticated()]
+        else:
+            return [permissions.IsAdminUser()]
     
     def list(self, request, *args, **kwargs):
         event = request.query_params.get("event", None)

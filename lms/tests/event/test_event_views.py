@@ -1,14 +1,11 @@
 import json
-import random
 import datetime
 from django.utils import timezone
 from django.urls import reverse
-from rest_framework.test import APITestCase, APIClient
+from rest_framework.test import APITestCase
 from rest_framework import status
 from lms.models.event_models import Event, EventInstance
-
-
-client = APIClient()
+from lms.tests.helper_functions import login
 
 
 class GetEventViewTest(APITestCase):
@@ -21,11 +18,14 @@ class GetEventViewTest(APITestCase):
             "description": "This is my description"
         }
 
+        self.client = login()
+
+
     def test_get_specific_event(self):
         
         Event.objects.create(**self.validPayload)
         url = f"{reverse('event-view')}?eventCode=T101"
-        response = client.get(url)
+        response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -36,7 +36,7 @@ class GetEventViewTest(APITestCase):
             payload["eventCode"] += str(n)
             Event.objects.create(**payload)
 
-        response = client.get(
+        response = self.client.get(
             reverse("event-view")
         )
         self.assertEqual(len(response.data["results"]), 50)
@@ -59,10 +59,11 @@ class CreateEventViewTest(APITestCase):
             "description": "This is my description"
         }
 
+        self.client = login()
 
     def test_create_valid_event(self):
 
-        response = client.post(
+        response = self.client.post(
             reverse("event-view"),
             data=json.dumps(self.validPayload),
             content_type='application/json'
@@ -76,7 +77,7 @@ class CreateEventViewTest(APITestCase):
 
     def test_create_invalid_event_no_event_code(self):
 
-        response = client.post(
+        response = self.client.post(
             reverse("event-view"),
             data=json.dumps(self.invalidPayload),
             content_type='application/json'
@@ -88,7 +89,7 @@ class CreateEventViewTest(APITestCase):
 
         Event.objects.create(**self.validPayload)
 
-        response = client.post(
+        response = self.client.post(
             reverse("event-view"),
             data=json.dumps(self.validPayload),
             content_type='application/json'
@@ -113,12 +114,14 @@ class UpdateEventViewTest(APITestCase):
             "description": "This is my description"
         }
 
+        self.client = login()
+
         self.testEvent = Event.objects.create(**self.validPayload)
 
     def test_update_event(self):
 
         url = f"{reverse('event-view')}?eventCode=T101"
-        response = client.put(
+        response = self.client.put(
             url,
             data=json.dumps(self.updatedPayload),
             content_type='application/json'
@@ -137,12 +140,14 @@ class DeleteEventViewTest(APITestCase):
             "description": "This is my description"
         }
 
+        self.client = login()
+
         self.testEvent = Event.objects.create(**self.validPayload)
 
     def test_delete_event(self):
 
         url = f"{reverse('event-view')}?eventCode=T101"
-        response = client.delete(url)
+        response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
@@ -161,17 +166,18 @@ class GetEventInstanceViewTest(APITestCase):
             "isCompleted": False,
             "event": testEvent
         }
+        self.client = login()
         self.testEventInstance = EventInstance.objects.create(**self.validPayload)
 
     def test_get_specific_event_instance_by_event_instance_code(self):
         url = reverse('retrieve-event-instance-view', kwargs={"eventInstanceCode":"Test101"})
-        response = client.get(url)
+        response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_specific_event_instance_by_invalid_event_instance_code(self):
         url = reverse('retrieve-event-instance-view', kwargs={"eventInstanceCode":"Invalid"})
-        response = client.get(url)
+        response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -179,21 +185,21 @@ class GetEventInstanceViewTest(APITestCase):
     def test_get_specific_event_instance_by_event_code(self):
         
         url = f"{reverse('event-instance-view')}?event=Test101"
-        response = client.get(url)
+        response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_specific_event_instance_by_isCompleted(self):
         
         url = f"{reverse('event-instance-view')}?isCompleted=False"
-        response = client.get(url)
+        response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_specific_event_instance_by_invalid_event_code(self):
         
         url = f"{reverse('event-instance-view')}?event=aefhj"
-        response = client.get(url)
+        response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 0)
@@ -201,13 +207,13 @@ class GetEventInstanceViewTest(APITestCase):
     def test_get_specific_event_instance_by_isCompleted_wrongly(self):
         
         url = f"{reverse('event-instance-view')}?isCompleted=aefhj"
-        response = client.get(url)
+        response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
     
     def test_get_event_instance_list(self):
 
-        response = client.get(
+        response = self.client.get(
             reverse("event-instance-view")
         )
         self.assertEqual(len(response.data), 1)
@@ -228,11 +234,12 @@ class CreateEventInstanceViewTest(APITestCase):
             "dates": [str(timezone.now() + datetime.timedelta(days=10+n)) for n in range(5)],
             "isCompleted": "True",
         }
+        self.client = login()
 
     def test_create_valid_event_instance(self):
 
         url = reverse('event-instance-view')
-        response = client.post(
+        response = self.client.post(
             url,
             data=json.dumps(self.validPayload),
             content_type='application/json'
@@ -244,7 +251,7 @@ class CreateEventInstanceViewTest(APITestCase):
 
         url = reverse('event-instance-view')
         self.validPayload["eventCode"] = "T102"
-        response = client.post(
+        response = self.client.post(
             url,
             data=json.dumps(self.validPayload),
             content_type='application/json'
@@ -257,7 +264,7 @@ class CreateEventInstanceViewTest(APITestCase):
         del validPayload["eventCode"]
         EventInstance.objects.create(**validPayload)
         url = reverse('event-instance-view')
-        response = client.post(
+        response = self.client.post(
             url,
             data=json.dumps(self.validPayload),
             content_type='application/json'
@@ -279,6 +286,7 @@ class DeleteEventInstanceViewTest(APITestCase):
             "dates": [str(timezone.now() + datetime.timedelta(days=10+n)) for n in range(5)],
             "isCompleted": "True",
         }
+        self.client = login()
 
         validPayload = self.validPayload.copy()
         del validPayload["eventCode"]
@@ -288,11 +296,11 @@ class DeleteEventInstanceViewTest(APITestCase):
     def test_delete_valid_event_instance(self):
         
         url = f"{reverse('event-instance-view')}?eventInstanceCode=Test101"
-        response = client.delete(url)
+        response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_delete_invalid_event_instance(self):
         
         url = f"{reverse('event-instance-view')}?eventInstanceCode=Test102"
-        response = client.delete(url)
+        response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

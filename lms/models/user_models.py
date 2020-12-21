@@ -31,6 +31,8 @@ class UserEnrollment(models.Model):
 
     user = models.ForeignKey("User", on_delete=models.CASCADE, null=True)
     eventInstance = models.ForeignKey("EventInstance", on_delete=models.CASCADE, null=True)
+    paymentId = models.CharField(max_length=200, blank=True, null=True)
+    paymentPlatform = models.CharField(max_length=200, blank=True, null=True)
 
 
 class User(AbstractUser):
