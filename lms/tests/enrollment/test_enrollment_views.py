@@ -2,7 +2,7 @@ import datetime
 import json
 from django.utils import timezone
 from django.urls import reverse
-from rest_framework.test import APITestCase
+from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
 from lms.models.event_models import Event, EventInstance
 from lms.tests.helper_functions import login
@@ -41,6 +41,7 @@ class PostEnrollmentViewTest(APITestCase):
         self.client = login()
 
     def test_create_enrollment(self):
+
         response = self.client.post(
             reverse("enrollment-view"),
             data=json.dumps(self.validPayload),
@@ -48,3 +49,14 @@ class PostEnrollmentViewTest(APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_create_enrollment_unauthenticated(self):
+        
+        client = APIClient()
+        response = client.post(
+            reverse("enrollment-view"),
+            data=json.dumps(self.validPayload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
