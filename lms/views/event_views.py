@@ -2,11 +2,8 @@ from distutils.util import strtobool
 import json
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework import permissions
-from rest_framework import generics, viewsets
+from rest_framework import permissions, status, mixins, generics, viewsets
 from rest_framework.response import Response
-from rest_framework import status
-from rest_framework import  mixins
 from lms.models.event_models import Event, EventInstance
 from lms.serializers.event_serializers import EventSerializer, EventInstanceSerializer
 from backend.exception_classes import InvalidQueryStringParameter, ModelObjectDoesNotExist
