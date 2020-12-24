@@ -17,7 +17,7 @@ class GetUserViewTest(APITestCase):
         }
 
         User.objects.create(**self.validPayload)
-        self.client = login()
+        self.user, self.client = login()
 
     def test_get_specific_user(self):
 

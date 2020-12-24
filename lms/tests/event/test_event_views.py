@@ -18,7 +18,7 @@ class GetEventViewTest(APITestCase):
             "description": "This is my description"
         }
 
-        self.client = login()
+        self.user, self.client = login()
 
 
     def test_get_specific_event(self):
@@ -59,7 +59,7 @@ class CreateEventViewTest(APITestCase):
             "description": "This is my description"
         }
 
-        self.client = login()
+        self.user, self.client = login()
 
     def test_create_valid_event(self):
 
@@ -114,7 +114,7 @@ class UpdateEventViewTest(APITestCase):
             "description": "This is my description"
         }
 
-        self.client = login()
+        self.user, self.client = login()
 
         self.testEvent = Event.objects.create(**self.validPayload)
 
@@ -140,7 +140,7 @@ class DeleteEventViewTest(APITestCase):
             "description": "This is my description"
         }
 
-        self.client = login()
+        self.user, self.client = login()
 
         self.testEvent = Event.objects.create(**self.validPayload)
 
@@ -166,7 +166,7 @@ class GetEventInstanceViewTest(APITestCase):
             "isCompleted": False,
             "event": testEvent
         }
-        self.client = login()
+        self.user, self.client = login()
         self.testEventInstance = EventInstance.objects.create(**self.validPayload)
 
     def test_get_specific_event_instance_by_event_instance_code(self):
@@ -234,7 +234,7 @@ class CreateEventInstanceViewTest(APITestCase):
             "dates": [str(timezone.now() + datetime.timedelta(days=10+n)) for n in range(5)],
             "isCompleted": "True",
         }
-        self.client = login()
+        self.user, self.client = login()
 
     def test_create_valid_event_instance(self):
 
@@ -286,7 +286,7 @@ class DeleteEventInstanceViewTest(APITestCase):
             "dates": [str(timezone.now() + datetime.timedelta(days=10+n)) for n in range(5)],
             "isCompleted": "True",
         }
-        self.client = login()
+        self.user, self.client = login()
 
         validPayload = self.validPayload.copy()
         del validPayload["eventCode"]

@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.urls import reverse
 from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
+from lms.models.user_models import UserEnrollment
 from lms.models.event_models import Event, EventInstance
 from lms.tests.helper_functions import login
 
@@ -11,6 +12,8 @@ from lms.tests.helper_functions import login
 class PostEnrollmentViewTest(APITestCase):
 
     def setUp(self):
+
+        self.user, self.client = login()
 
         event = {
             "eventCode": "T101",
@@ -30,15 +33,14 @@ class PostEnrollmentViewTest(APITestCase):
             "event": testEvent
         }
 
-        EventInstance.objects.create(**eventInstance)
+        self.eventInstance = EventInstance.objects.create(**eventInstance)
 
         self.validPayload = {
-            "username": 26583923,
+            "username": self.user.username,
             "eventInstanceCode": "Test101",
             "role": 1
         }
 
-        self.client = login()
 
     def test_create_enrollment(self):
 
@@ -49,6 +51,17 @@ class PostEnrollmentViewTest(APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_duplicate_enrollment(self):
+
+        UserEnrollment.objects.create(user=self.user, eventInstance=self.eventInstance, role=1)
+        response = self.client.post(
+            reverse("enrollment-view"),
+            data=json.dumps(self.validPayload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        
 
     def test_create_enrollment_unauthenticated(self):
         

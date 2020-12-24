@@ -14,4 +14,4 @@ def login():
 
     client.force_authenticate(user=user)
 
-    return client
+    return user, client

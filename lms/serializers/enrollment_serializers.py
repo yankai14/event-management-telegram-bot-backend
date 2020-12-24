@@ -16,7 +16,10 @@ class EnrollmentSerializer(serializers.Serializer):
         if self.is_valid():
             user = get_object_or_404(User, username=validated_data.get("username", None))
             eventInstance = get_object_or_404(EventInstance, eventInstanceCode=validated_data.get("eventInstanceCode", None))
-            enrollment = UserEnrollment.objects.create(user=user, eventInstance=eventInstance, role=validated_data.get("role"))
+            if not UserEnrollment.objects.filter(user=user).exists():
+                enrollment = UserEnrollment.objects.create(user=user, eventInstance=eventInstance, role=validated_data.get("role"))
+            else:
+                raise ValidationError("User already enrolled")
         else:
             raise ValidationError(self.errors)
         return enrollment
