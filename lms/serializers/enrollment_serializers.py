@@ -1,7 +1,9 @@
 from rest_framework import serializers
 from django.shortcuts import get_object_or_404
-from django.contrib.auth.models import Permission
+from django.db.models import Q
+from rest_framework import status
 from rest_framework.exceptions import ValidationError
+from backend.exception_classes import ModelObjectAlreadyExist
 from lms.models.user_models import User, UserEnrollment, EventRole
 from lms.models.event_models import EventInstance
 
@@ -16,10 +18,13 @@ class EnrollmentSerializer(serializers.Serializer):
         if self.is_valid():
             user = get_object_or_404(User, username=validated_data.get("username", None))
             eventInstance = get_object_or_404(EventInstance, eventInstanceCode=validated_data.get("eventInstanceCode", None))
-            if not UserEnrollment.objects.filter(user=user).exists():
+
+            userCriteria = Q(user=user)
+            eventInstanceCriteria = Q(eventInstance=eventInstance)
+            if not UserEnrollment.objects.filter(userCriteria & eventInstanceCriteria).exists():
                 enrollment = UserEnrollment.objects.create(user=user, eventInstance=eventInstance, role=validated_data.get("role"))
             else:
-                raise ValidationError("User already enrolled")
+                raise ModelObjectAlreadyExist
         else:
             raise ValidationError(self.errors)
         return enrollment
