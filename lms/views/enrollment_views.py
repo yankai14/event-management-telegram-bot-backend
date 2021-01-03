@@ -1,24 +1,36 @@
-from rest_framework import generics, status, permissions
-from rest_framework.response import Response
+from rest_framework import generics, permissions, mixins
+from lms.models.user_models import UserEnrollment
 from lms.serializers.enrollment_serializers import EnrollmentSerializer
-from lms.permissions import EventInstancePermission
-import json
 
 
-class EnrollmentViewSet(generics.GenericAPIView):
+class EnrollmentViewSet(mixins.ListModelMixin,
+                        mixins.CreateModelMixin,
+                        mixins.DestroyModelMixin,
+                        mixins.UpdateModelMixin,
+                        generics.GenericAPIView):
+
+    queryset = UserEnrollment.objects.all()
+    serializer_class = EnrollmentSerializer
 
     def get_permissions(self):
         if self.request.method == "GET":
-            return [EventInstancePermission(), permissions.IsAdminUser()]
+            return [permissions.IsAdminUser()]
         if self.request.method == "POST":
             return [permissions.IsAuthenticated()]
 
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
     def post(self, request, *args, **kwargs):
-        payload = json.loads(request.body)
-        serializer = EnrollmentSerializer(data=payload)
-        serializer.is_valid(raise_exception=True)
-        serializer.create(serializer.validated_data)
-        return Response(serializer.validated_data, status=status.HTTP_201_CREATED)
+        return self.create(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+
+    
         
 
 

@@ -8,11 +8,17 @@ from lms.models.user_models import User, UserEnrollment, EventRole
 from lms.models.event_models import EventInstance
 
 
-class EnrollmentSerializer(serializers.Serializer):
+class EnrollmentSerializer(serializers.ModelSerializer):
 
-    username = serializers.IntegerField()
-    eventInstanceCode = serializers.CharField(max_length=100)
-    role = serializers.ChoiceField(choices=EventRole.choices)
+    username = serializers.IntegerField(write_only=True)
+    eventInstanceCode = serializers.CharField(max_length=100, write_only=True)
+    user = serializers.StringRelatedField()
+    eventInstance = serializers.StringRelatedField()
+
+    class Meta:
+        model = UserEnrollment
+        fields = "__all__"
+        extra_kwargs = {"user": {"read_only": True}, "eventInstance": {"read_only": True}}
 
     def create(self, validated_data):
         if self.is_valid():

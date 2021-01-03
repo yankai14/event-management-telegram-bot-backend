@@ -9,6 +9,42 @@ from lms.models.event_models import Event, EventInstance
 from lms.tests.helper_functions import login
 
 
+class GetEnrollmentViewTest(APITestCase):
+
+    def setUp(self):
+
+        user, self.client = login()
+
+        event = {
+            "eventCode": "T101",
+            "name": "testEvent1",
+            "description": "This is my description"
+        }
+
+        testEvent = Event.objects.create(**event)
+
+        eventInstance = {
+            "eventInstanceCode": "Test101",
+            "startDate": timezone.now(),
+            "endDate": timezone.now() + datetime.timedelta(days=10),
+            "location": "somewhere",
+            "dates": [timezone.now() + datetime.timedelta(days=10+n) for n in range(5)],
+            "isCompleted": False,
+            "event": testEvent
+        }
+
+        testEventInstance = EventInstance.objects.create(**eventInstance)
+
+        UserEnrollment.objects.create(user=user, eventInstance=testEventInstance, role=1)
+
+    def test_get_user_enrollment(self):
+
+        response = self.client.get(
+            reverse("enrollment-view"),
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
 class PostEnrollmentViewTest(APITestCase):
 
     def setUp(self):
@@ -60,7 +96,7 @@ class PostEnrollmentViewTest(APITestCase):
             data=json.dumps(self.validPayload),
             content_type='application/json'
         )
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         
 
     def test_create_enrollment_unauthenticated(self):

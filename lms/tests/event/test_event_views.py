@@ -209,7 +209,7 @@ class GetEventInstanceViewTest(APITestCase):
         url = f"{reverse('event-instance-view')}?isCompleted=aefhj"
         response = self.client.get(url)
 
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
     
     def test_get_event_instance_list(self):
 
@@ -269,7 +269,7 @@ class CreateEventInstanceViewTest(APITestCase):
             data=json.dumps(self.validPayload),
             content_type='application/json'
         )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
 
 
 class DeleteEventInstanceViewTest(APITestCase):
