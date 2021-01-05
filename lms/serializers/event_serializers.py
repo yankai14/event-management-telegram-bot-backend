@@ -26,8 +26,19 @@ class EventInstanceSerializer(serializers.ModelSerializer):
             event = get_object_or_404(Event, eventCode=validated_data.get("eventCode"))
             if EventInstance.objects.filter(eventInstanceCode=validated_data["eventInstanceCode"]).exists():
                 raise ModelObjectAlreadyExist(f"EventInstance already exist")
+            else:
+                eventInstance = EventInstance.objects.create(
+                    eventInstanceCode=validated_data.get("eventInstanceCode"),
+                    startDate=validated_data.get("startDate"),
+                    endDate=validated_data.get("endDate"),
+                    location=validated_data.get("location"),
+                    dates=validated_data.get("dates"),
+                    fee=validated_data.get("fee", 0),
+                    isCompleted=validated_data.get("isCompleted"),
+                    event=event
+                )
         else:
 
             raise ValidationError(self.errors)
-        return event
+        return eventInstance
         
