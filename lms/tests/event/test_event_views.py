@@ -24,7 +24,7 @@ class GetEventViewTest(APITestCase):
     def test_get_specific_event(self):
         
         Event.objects.create(**self.validPayload)
-        url = f"{reverse('event-view')}?eventCode=T101"
+        url = reverse('event-view', kwargs={"eventCode": "T101"})
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -120,7 +120,7 @@ class UpdateEventViewTest(APITestCase):
 
     def test_update_event(self):
 
-        url = f"{reverse('event-view')}?eventCode=T101"
+        url = reverse('event-view', kwargs={"eventCode": "T101"})
         response = self.client.put(
             url,
             data=json.dumps(self.updatedPayload),
@@ -146,7 +146,7 @@ class DeleteEventViewTest(APITestCase):
 
     def test_delete_event(self):
 
-        url = f"{reverse('event-view')}?eventCode=T101"
+        url = reverse('event-view', kwargs={"eventCode":"T101"})
         response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
@@ -170,13 +170,13 @@ class GetEventInstanceViewTest(APITestCase):
         self.testEventInstance = EventInstance.objects.create(**self.validPayload)
 
     def test_get_specific_event_instance_by_event_instance_code(self):
-        url = reverse('retrieve-event-instance-view', kwargs={"eventInstanceCode":"Test101"})
+        url = reverse('event-instance-view', kwargs={"eventInstanceCode":"Test101"})
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_specific_event_instance_by_invalid_event_instance_code(self):
-        url = reverse('retrieve-event-instance-view', kwargs={"eventInstanceCode":"Invalid"})
+        url = reverse('event-instance-view', kwargs={"eventInstanceCode":"Invalid"})
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -198,25 +198,18 @@ class GetEventInstanceViewTest(APITestCase):
 
     def test_get_specific_event_instance_by_invalid_event_code(self):
         
-        url = f"{reverse('event-instance-view')}?event=aefhj"
+        url = f"{reverse('event-instance-view')}?event=Invalid"
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 0)
-
-    def test_get_specific_event_instance_by_isCompleted_wrongly(self):
-        
-        url = f"{reverse('event-instance-view')}?isCompleted=aefhj"
-        response = self.client.get(url)
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data.get("count"), 0)
     
     def test_get_event_instance_list(self):
 
         response = self.client.get(
             reverse("event-instance-view")
         )
-        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data.get("count"), 1)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
@@ -269,7 +262,7 @@ class CreateEventInstanceViewTest(APITestCase):
             data=json.dumps(self.validPayload),
             content_type='application/json'
         )
-        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 class DeleteEventInstanceViewTest(APITestCase):
@@ -295,12 +288,12 @@ class DeleteEventInstanceViewTest(APITestCase):
 
     def test_delete_valid_event_instance(self):
         
-        url = f"{reverse('event-instance-view')}?eventInstanceCode=Test101"
+        url = reverse('event-instance-view', kwargs={"eventInstanceCode":"Test101"})
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_delete_invalid_event_instance(self):
         
-        url = f"{reverse('event-instance-view')}?eventInstanceCode=Test102"
+        url = reverse('event-instance-view', kwargs={"eventInstanceCode":"Invalid"})
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

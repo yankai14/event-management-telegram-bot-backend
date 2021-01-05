@@ -1,4 +1,6 @@
 from rest_framework import generics, permissions, mixins
+from lms.views.filters.enrollment_filter import EnrollmentFilter
+from django_filters.rest_framework import DjangoFilterBackend
 from lms.models.user_models import UserEnrollment
 from lms.serializers.enrollment_serializers import EnrollmentSerializer
 
@@ -11,6 +13,8 @@ class EnrollmentViewSet(mixins.ListModelMixin,
 
     queryset = UserEnrollment.objects.all()
     serializer_class = EnrollmentSerializer
+    filter_backends = [DjangoFilterBackend,]
+    filterset_class = EnrollmentFilter
 
     def get_permissions(self):
         if self.request.method == "GET":

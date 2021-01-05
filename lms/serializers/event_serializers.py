@@ -1,8 +1,8 @@
 from rest_framework import serializers
-from rest_framework import status
-from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.generics import get_object_or_404
+from rest_framework.exceptions import ValidationError
 from lms.models import Event, EventInstance
-from backend.exception_classes import ModelObjectDoesNotExist, ModelObjectAlreadyExist
+from backend.exception_classes import ModelObjectAlreadyExist
 
 
 class EventSerializer(serializers.ModelSerializer):
@@ -14,21 +14,20 @@ class EventSerializer(serializers.ModelSerializer):
 class EventInstanceSerializer(serializers.ModelSerializer):
 
     event = serializers.StringRelatedField()
+    eventCode = serializers.CharField(max_length=100, write_only=True)
 
     class Meta:
         model = EventInstance
         fields = "__all__"
-        extra_kwargs = {"eventCode": {"read_only": True}}
+        
 
-    def create(self, validated_data, eventCode):
-        try:
-            event = Event.objects.get(eventCode=eventCode)
-            validated_data["event"] = event
-        except ObjectDoesNotExist:
-            raise ModelObjectDoesNotExist("eventCode is invalid", code=status.HTTP_404_NOT_FOUND)
+    def create(self, validated_data):
+        if self.is_valid():
+            event = get_object_or_404(Event, eventCode=validated_data.get("eventCode"))
+            if EventInstance.objects.filter(eventInstanceCode=validated_data["eventInstanceCode"]).exists():
+                raise ModelObjectAlreadyExist(f"EventInstance already exist")
+        else:
 
-        if EventInstance.objects.filter(eventInstanceCode=validated_data["eventInstanceCode"]).exists():
-            raise ModelObjectAlreadyExist(f"EventInstance already exist")
-
-        return super(EventInstanceSerializer, self).create(validated_data)
+            raise ValidationError(self.errors)
+        return event
         
