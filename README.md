@@ -13,7 +13,7 @@ pip install -r requirements.txt
 ```
 Make migrations and migrate databases
 ```bash
-python manage.py makemigrations
+python manage.py makemigrations lms
 python manage.py migrate
 ```
 Run tests
