@@ -6,7 +6,7 @@ def login():
             "email": "limyk2014@gmail.com", 
             "first_name": "Lim", 
             "last_name": "Yk", 
-            "username": 26583923,
+            "username": "yankai14",
             "password": "Tb1932923"
         }
     user = User.objects.create_superuser(**userInfo)

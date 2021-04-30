@@ -9,7 +9,7 @@ from lms.models.event_models import EventInstance
 
 class EnrollmentSerializer(serializers.ModelSerializer):
 
-    username = serializers.IntegerField(write_only=True)
+    username = serializers.CharField(max_length=100, write_only=True)
     eventInstanceCode = serializers.CharField(max_length=100, write_only=True)
     user = serializers.StringRelatedField()
     eventInstance = serializers.StringRelatedField()
