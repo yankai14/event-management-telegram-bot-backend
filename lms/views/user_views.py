@@ -25,7 +25,7 @@ class UserViewSet(mixins.ListModelMixin,
 
     @csrf_exempt
     def get(self, request, *args, **kwargs):
-        if self.request.query_params.get("username", None):
+        if kwargs.get("username", None):
             return self.retrieve(request, *args, **kwargs)
         return self.list(request, *args, **kwargs)
 

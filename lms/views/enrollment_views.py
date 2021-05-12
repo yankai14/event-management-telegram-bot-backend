@@ -17,10 +17,10 @@ class EnrollmentViewSet(mixins.ListModelMixin,
     filterset_class = EnrollmentFilter
 
     def get_permissions(self):
-        if self.request.method == "GET":
-            return [permissions.IsAdminUser()]
-        if self.request.method == "POST":
+        if self.request.method == "GET" or self.request.method == "POST":
             return [permissions.IsAuthenticated()]
+        else:
+            return [permissions.IsAdminUser()]
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
