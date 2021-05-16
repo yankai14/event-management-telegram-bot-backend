@@ -11,6 +11,15 @@ To install dependencies
 ```bash
 pip install -r requirements.txt
 ```
+
+Run postgresql service on localhost
+
+```bash
+sudo service postgresql start
+```
+
+Create your .env file and fill in according to stub.env
+
 Make migrations and migrate databases
 ```bash
 python manage.py makemigrations lms
