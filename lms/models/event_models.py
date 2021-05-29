@@ -30,3 +30,24 @@ class EventInstance(models.Model):
 
     def __str__(self):
         return self.eventInstanceCode
+
+
+class EventInstanceFolder(models.Model):
+
+    folderId = models.CharField(max_length=250, blank=False, null=False, unique=True)
+    folderName = models.CharField(max_length=200, blank=False, null=True, unique=True)
+    eventInstance = models.ForeignKey('EventInstance', null=True, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.folderId
+
+
+class EventInstanceFolderPermissions(models.Model):
+
+    permissionId = models.CharField(max_length=250, blank=False, null=False, unique=True)
+    user = models.ForeignKey('User', null=True, on_delete=models.CASCADE)
+    folder = models.ForeignKey('EventInstanceFolder', null=True, on_delete=models.CASCADE)
+    folderRole = models.CharField(max_length=50, blank=False, null=False, default="reader")
+
+    def __str__(self):
+        return self.permissionId
