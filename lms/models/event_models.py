@@ -27,6 +27,7 @@ class EventInstance(models.Model):
     fee = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     isCompleted = models.BooleanField(default=False)
     event = models.ForeignKey('Event', null=True, on_delete=models.CASCADE)
+    # vacancy = models.IntegerField(blank=False, null=True)
 
     def __str__(self):
         return self.eventInstanceCode
