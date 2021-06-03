@@ -12,7 +12,7 @@ from lms.tests.helper_functions import login
 class GetEnrollmentViewTest(APITestCase):
 
     def setUp(self):
-
+        
         user, self.client = login()
 
         event = {

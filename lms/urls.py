@@ -13,5 +13,6 @@ urlpatterns = [
 
     path('auth/user', views.user_views.UserViewSet.as_view(), name='user-view'),
     path('auth/user/<str:username>', views.user_views.UserViewSet.as_view(), name='user-view'),
-    path('auth/login', obtain_auth_token, name='api_token_auth')
+    path('auth/login', obtain_auth_token, name='api_token_auth'),
+    path('event-instance-feedback/', views.feedback_views.EventInstanceFeedbackViewSet.as_view()),
 ]

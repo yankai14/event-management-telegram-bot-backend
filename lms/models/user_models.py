@@ -19,7 +19,7 @@ class UserEnrollment(models.Model):
     eventInstance = models.ForeignKey("EventInstance", on_delete=models.CASCADE, null=True)
     paymentPlatform = models.CharField(max_length=200, blank=True, null=True)
     role = models.IntegerField(choices=EventRole.choices, blank=False, null=True)
-
+    
 
 class User(AbstractUser):
     pass
