@@ -1,9 +1,11 @@
 from rest_framework import permissions, mixins, generics
+from rest_framework.response import Response
+from rest_framework import status
 from django_filters.rest_framework import DjangoFilterBackend
-from lms.views.filters.event_filter import EventFilter, EventInstanceFilter
-from lms.models.event_models import Event, EventInstance
-from lms.serializers.event_serializers import EventSerializer, EventInstanceSerializer
-
+from lms.views.filters.event_filter import EventFilter, EventInstanceFilter, EventInstanceFolderFilter, EventInstanceFolderPermissionsFilter
+from lms.models.event_models import Event, EventInstance, EventInstanceFolder, EventInstanceFolderPermissions
+from lms.serializers.event_serializers import EventInstanceFolderPermissionsSerializer, EventSerializer, EventInstanceSerializer, EventInstanceFolderSerializer, EventInstanceFolderPermissions
+from lms.utils.drive_service import GDriveService
 # Create your views here.
 
 
@@ -79,7 +81,7 @@ class EventInstanceViewSet(mixins.ListModelMixin,
             return [permissions.IsAdminUser()]
     
     def get(self, request, *args, **kwargs):
-        if kwargs.get("eventInstanceCode", None):
+        if kwargs.get("eventInstanceCode"):
             return self.retrieve(request, *args, **kwargs)
         return self.list(request, *args, **kwargs)
 
@@ -92,3 +94,65 @@ class EventInstanceViewSet(mixins.ListModelMixin,
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
 
+
+class EventInstanceFolderViewSet(mixins.ListModelMixin,
+                mixins.RetrieveModelMixin,
+                mixins.CreateModelMixin,
+                mixins.UpdateModelMixin,
+                mixins.DestroyModelMixin,
+                generics.GenericAPIView):
+
+    queryset = EventInstanceFolder.objects.all()
+    serializer_class = EventInstanceFolderSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = EventInstanceFolderFilter
+    lookup_field = "folderId"
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+    # def update(self, request, *args, **kwargs):
+    #     return self.update(request, *args, **kwargs)
+
+    # Overwrite destroy method to integrate GDriveService
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        GDriveService.delete_file_or_folder(self.kwargs.get('folderId'))
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+
+
+class EventInstanceFolderPermissionsViewSet(mixins.ListModelMixin,
+                mixins.RetrieveModelMixin,
+                mixins.CreateModelMixin,
+                mixins.UpdateModelMixin,
+                mixins.DestroyModelMixin,
+                generics.GenericAPIView):
+
+    queryset = EventInstanceFolderPermissions.objects.all()
+    serializer_class = EventInstanceFolderPermissionsSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = EventInstanceFolderPermissionsFilter
+    lookup_field = "permissionId"
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+    # Overwrite destroy method to integrate GDriveService
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        GDriveService.delete_permission(self.kwargs.get('permissionId'))
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(self, request, *args, **kwargs)
