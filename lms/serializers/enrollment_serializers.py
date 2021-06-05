@@ -5,13 +5,14 @@ from rest_framework.exceptions import ValidationError
 from backend.exception_classes import ModelObjectAlreadyExist
 from lms.models.user_models import User, UserEnrollment
 from lms.models.event_models import EventInstance
+from lms.serializers.user_serializers import UserSerializer
 
 
 class EnrollmentSerializer(serializers.ModelSerializer):
 
     username = serializers.CharField(max_length=100, write_only=True)
     eventInstanceCode = serializers.CharField(max_length=100, write_only=True)
-    user = serializers.StringRelatedField()
+    user = UserSerializer(read_only=True)
     eventInstance = serializers.StringRelatedField()
 
     class Meta:
