@@ -18,7 +18,8 @@ urlpatterns = [
 
     path("enrollment", views.enrollment_views.EnrollmentViewSet.as_view(), name="enrollment-view"),
 
-    path('event-instance-feedback/', views.feedback_views.EventInstanceFeedbackViewSet.as_view()),
+    path('event-instance-feedback/', views.feedback_views.EventInstanceFeedbackViewSet.as_view(), name="event-instance-feedback-view"),
+    path('event-instance-feedback/<int:pk>', views.feedback_views.EventInstanceFeedbackViewSet.as_view(), name="event-instance-feedback-view"),
 
     path("auth/user", views.user_views.UserViewSet.as_view(), name="user-view"),
     path("auth/user/<str:username>", views.user_views.UserViewSet.as_view(), name="user-view"),

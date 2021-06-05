@@ -5,6 +5,7 @@ from lms.serializers.feedback_serializers import EventInstanceFeedbackSerializer
 
 class EventInstanceFeedbackViewSet(mixins.ListModelMixin,
                                    mixins.CreateModelMixin,
+                                   mixins.RetrieveModelMixin,
                                    mixins.UpdateModelMixin,
                                    mixins.DestroyModelMixin,
                                    generics.GenericAPIView):
@@ -13,10 +14,11 @@ class EventInstanceFeedbackViewSet(mixins.ListModelMixin,
     serializer_class = EventInstanceFeedbackSerializer
 
     def get(self,request,*args,**kwargs):
+        if kwargs.get("pk"):
+            return self.retrieve(request, *args, **kwargs)
         return self.list(request,*args,**kwargs)
 
     def post(self,request,*args,**kwargs):
-        print(request.data)
         return self.create(request,*args,**kwargs)
         
 
