@@ -13,6 +13,12 @@ class EventInstanceFeedbackViewSet(mixins.ListModelMixin,
     queryset = EventInstanceFeedback.objects.all()
     serializer_class = EventInstanceFeedbackSerializer
 
+    def get_permissions(self):
+        if self.request.method == "GET" or self.request.method == "POST":
+            return [permissions.IsAuthenticated()]
+        else:
+            return [permissions.IsAdminUser()]    
+
     def get(self,request,*args,**kwargs):
         if kwargs.get("pk"):
             return self.retrieve(request, *args, **kwargs)

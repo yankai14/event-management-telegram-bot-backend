@@ -108,7 +108,164 @@ class PostEventInstanceFeedbackTest(APITestCase):
             content_type = 'application/json'
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-    
 
-    
+    def test_create_event_instance_feedback_unauthenticated(self):
 
+        self.client = APIClient()
+        response = self.client.post(
+            reverse("event-instance-feedback-view"),
+            data=json.dumps(self.validPayload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+    
+class RetrieveEventInstanceFeedbackTest(APITestCase):
+
+    def setUp(self):
+
+        self.user, self.client = login()
+
+        event = {
+            "eventCode" : "T102",
+            "name" : "Test",
+            "description" : "Testing purposes"
+        }
+
+        testEvent = Event.objects.create(**event)
+
+        eventInst = {
+            "eventInstanceCode" : "Test102",
+            "startDate" : timezone.now(),
+            "endDate" : timezone.now() + datetime.timedelta(days=10),
+            "location": "somewhere",
+            "dates": [timezone.now() + datetime.timedelta(days=10+n) for n in range(5)],
+            "isCompleted": False,
+            "event": testEvent,
+            "fee": 0            
+        }
+
+        testEventInstance = EventInstance.objects.create(**eventInst)
+
+        userEnrollment = {
+            "user" : self.user,
+            "paymentId" : "Testing ID",
+            "eventInstance" : testEventInstance,
+            "paymentPlatform" : "Testing Platform",
+            "role" : 1,
+        }            
+        #From userEnrollment model, one of field is user which ORM to User model.
+        #Hence, from helper_function, user obj is created from User.
+        testEnrollment = UserEnrollment.objects.create(**userEnrollment)
+
+        self.eventInstanceFeedback = EventInstanceFeedback.objects.create(userEnrollment=testEnrollment, eventInstance=testEventInstance, eventInstanceFeedback="Testing Feedback")
+
+    def test_retrieve_event_instance_feedback(self):
+        
+        response = self.client.get(
+            reverse('event-instance-feedback-view', kwargs={'pk':self.eventInstanceFeedback.id})
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+class UpdateEventInstanceFeedbackTest(APITestCase):
+    
+    def setUp(self):
+
+        self.user, self.client = login()
+
+        event = {
+            "eventCode" : "T102",
+            "name" : "Test",
+            "description" : "Testing purposes"
+        }
+
+        testEvent = Event.objects.create(**event)
+
+        eventInst = {
+            "eventInstanceCode" : "Test102",
+            "startDate" : timezone.now(),
+            "endDate" : timezone.now() + datetime.timedelta(days=10),
+            "location": "somewhere",
+            "dates": [timezone.now() + datetime.timedelta(days=10+n) for n in range(5)],
+            "isCompleted": False,
+            "event": testEvent,
+            "fee": 0            
+        }
+
+        testEventInstance = EventInstance.objects.create(**eventInst)
+
+        userEnrollment = {
+            "user" : self.user,
+            "paymentId" : "Testing ID",
+            "eventInstance" : testEventInstance,
+            "paymentPlatform" : "Testing Platform",
+            "role" : 1,
+        }            
+        #From userEnrollment model, one of field is user which ORM to User model.
+        #Hence, from helper_function, user obj is created from User.
+        testEnrollment = UserEnrollment.objects.create(**userEnrollment)
+
+        self.eventInstanceFeedback = EventInstanceFeedback.objects.create(userEnrollment=testEnrollment, eventInstance=testEventInstance, eventInstanceFeedback="Testing Feedback")
+
+        self.updatedPayload = {
+            "username" : self.user.username,
+            "eventInstanceCode" : testEnrollment.eventInstance.eventInstanceCode,
+            "eventInstanceFeedback" : "updated testing feedback"
+        }
+    
+    def test_update_event_instance_feedback(self):
+        
+        response = self.client.put(
+            reverse('event-instance-feedback-view', kwargs={"pk":self.eventInstanceFeedback.id}),
+            data=json.dumps(self.updatedPayload),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class DeleteEventInstanceFeedback(APITestCase):
+     
+    def setUp(self):
+        
+        self.user, self.client = login()
+
+        event = {
+            "eventCode" : "T102",
+            "name" : "Test",
+            "description" : "Testing purposes"
+        }
+
+        testEvent = Event.objects.create(**event)
+
+        eventInst = {
+            "eventInstanceCode" : "Test102",
+            "startDate" : timezone.now(),
+            "endDate" : timezone.now() + datetime.timedelta(days=10),
+            "location": "somewhere",
+            "dates": [timezone.now() + datetime.timedelta(days=10+n) for n in range(5)],
+            "isCompleted": False,
+            "event": testEvent,
+            "fee": 0            
+        }
+
+        testEventInstance = EventInstance.objects.create(**eventInst)
+
+        userEnrollment = {
+            "user" : self.user,
+            "paymentId" : "Testing ID",
+            "eventInstance" : testEventInstance,
+            "paymentPlatform" : "Testing Platform",
+            "role" : 1,
+        }            
+        #From userEnrollment model, one of field is user which ORM to User model.
+        #Hence, from helper_function, user obj is created from User.
+        testEnrollment = UserEnrollment.objects.create(**userEnrollment)
+
+        self.eventInstanceFeedback = EventInstanceFeedback.objects.create(userEnrollment=testEnrollment, eventInstance=testEventInstance, eventInstanceFeedback="Testing Feedback")
+
+    def test_delete_event_instance_feedback(self):
+        
+        response = self.client.delete(reverse('event-instance-feedback-view', kwargs={'pk':self.eventInstanceFeedback.id}))
+        
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
