@@ -1,6 +1,8 @@
 from rest_framework import permissions, mixins, generics
 from lms.models.feedback_models import EventInstanceFeedback
 from lms.serializers.feedback_serializers import EventInstanceFeedbackSerializer
+from django_filters.rest_framework import DjangoFilterBackend
+from lms.views.filters.event_instance_feedback_filter import FeedbackFilter
 
 
 class EventInstanceFeedbackViewSet(mixins.ListModelMixin,
@@ -12,6 +14,8 @@ class EventInstanceFeedbackViewSet(mixins.ListModelMixin,
     
     queryset = EventInstanceFeedback.objects.all()
     serializer_class = EventInstanceFeedbackSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = FeedbackFilter
 
     def get_permissions(self):
         if self.request.method == "GET" or self.request.method == "POST":
