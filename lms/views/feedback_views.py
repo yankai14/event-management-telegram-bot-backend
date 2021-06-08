@@ -3,6 +3,7 @@ from lms.models.feedback_models import EventInstanceFeedback
 from lms.serializers.feedback_serializers import EventInstanceFeedbackSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from lms.views.filters.event_instance_feedback_filter import FeedbackFilter
+from lms.feedback_permissions import FeedbackPermission
 
 
 class EventInstanceFeedbackViewSet(mixins.ListModelMixin,
@@ -14,14 +15,11 @@ class EventInstanceFeedbackViewSet(mixins.ListModelMixin,
     
     queryset = EventInstanceFeedback.objects.all()
     serializer_class = EventInstanceFeedbackSerializer
+    permission_classes = [permissions.IsAuthenticated,
+                          FeedbackPermission]
+                          
     filter_backends = [DjangoFilterBackend]
     filterset_class = FeedbackFilter
-
-    def get_permissions(self):
-        if self.request.method == "GET" or self.request.method == "POST":
-            return [permissions.IsAuthenticated()]
-        else:
-            return [permissions.IsAdminUser()]    
 
     def get(self,request,*args,**kwargs):
         if kwargs.get("pk"):
