@@ -108,7 +108,7 @@ class PostEventInstanceFeedbackTest(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def test_create_event_instance_feedback_unauthenticated(self):
+    def test_create_event_instance_feedback_without_enrollment(self):
 
         self.client = APIClient()
         response = self.client.post(
@@ -222,7 +222,7 @@ class UpdateEventInstanceFeedbackTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    
+   
 
 class DeleteEventInstanceFeedback(APITestCase):
      

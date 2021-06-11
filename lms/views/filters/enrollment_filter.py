@@ -1,6 +1,6 @@
 import django_filters
 from django_filters.rest_framework import FilterSet
-from lms.models.user_models import UserEnrollment
+from lms.models.enrollment_models import UserEnrollment
 
 
 class EnrollmentFilter(FilterSet):

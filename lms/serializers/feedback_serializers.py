@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from lms.models.feedback_models import EventInstanceFeedback
-from lms.models.user_models import UserEnrollment
+from lms.models.enrollment_models import UserEnrollment
 from lms.models.event_models import EventInstance, Event
 from lms.serializers.enrollment_serializers import EnrollmentSerializer
 from lms.serializers.event_serializers import EventInstanceSerializer
