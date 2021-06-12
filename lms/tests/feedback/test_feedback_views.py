@@ -6,7 +6,7 @@ from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
 from rest_framework.generics import get_object_or_404
 from lms.models.feedback_models import EventInstanceFeedback
-from lms.models.user_models import UserEnrollment
+from lms.models.enrollment_models import UserEnrollment
 from lms.models.event_models import Event, EventInstance
 from lms.tests.helper_functions import login
 
@@ -152,8 +152,7 @@ class RetrieveEventInstanceFeedbackTest(APITestCase):
             "paymentPlatform" : "Testing Platform",
             "role" : 1,
         }            
-        #From userEnrollment model, one of field is user which ORM to User model.
-        #Hence, from helper_function, user obj is created from User.
+
         testEnrollment = UserEnrollment.objects.create(**userEnrollment)
 
         self.eventInstanceFeedback = EventInstanceFeedback.objects.create(userEnrollment=testEnrollment, eventInstance=testEventInstance, eventInstanceFeedback="Testing Feedback")
@@ -200,8 +199,7 @@ class UpdateEventInstanceFeedbackTest(APITestCase):
             "paymentPlatform" : "Testing Platform",
             "role" : 1,
         }            
-        #From userEnrollment model, one of field is user which ORM to User model.
-        #Hence, from helper_function, user obj is created from User.
+
         testEnrollment = UserEnrollment.objects.create(**userEnrollment)
 
         self.testEventInstanceFeedback = EventInstanceFeedback.objects.create(userEnrollment=testEnrollment, eventInstance=testEventInstance, eventInstanceFeedback="Testing Feedback")
@@ -258,19 +256,17 @@ class DeleteEventInstanceFeedback(APITestCase):
             "paymentPlatform" : "Testing Platform",
             "role" : 1,
         }            
-        #From userEnrollment model, one of field is user which ORM to User model.
-        #Hence, from helper_function, user obj is created from User.
+
         testEnrollment = UserEnrollment.objects.create(**userEnrollment)
 
         self.eventInstanceFeedback = EventInstanceFeedback.objects.create(userEnrollment=testEnrollment, eventInstance=testEventInstance, eventInstanceFeedback="Testing Feedback")
-
+    
     def test_delete_event_instance_feedback(self):
         
         response = self.client.delete(reverse('event-instance-feedback-view', kwargs={'pk':self.eventInstanceFeedback.id}))
-        
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-
+    
 class EventInstanceFeedbackFilterTest(APITestCase):
 
     def setUp(self):

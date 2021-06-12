@@ -11,12 +11,18 @@ class FeedbackPermission(permissions.BasePermission):
 
     def has_permission(self, request, view):
         if request.method == "POST" or request.method == "PUT":
-            user = get_object_or_404(User, username=request.data.get("username", None))
+            user = get_object_or_404(User, username=request.data.get("username"))
             eventInstance = get_object_or_404(EventInstance, eventInstanceCode=request.data.get("eventInstanceCode"))
             userCriteria = Q(user=user)
             eventInstanceCriteria = Q(eventInstance=eventInstance)
 
-            #check if user in userCriteria and eventInstance in eventInstanceCriteria exist in UserEnrollment object
             return UserEnrollment.objects.filter(userCriteria & eventInstanceCriteria).exists()
-        
+
+        elif request.method == "DELETE":
+            userEnrollment = UserEnrollment.objects.get(user=request.user)
+            id = view.kwargs.get('pk')
+            userCriteria = Q(userEnrollment=userEnrollment)
+            idCriteria = Q(id=id)
+            return EventInstanceFeedback.objects.filter(userCriteria & idCriteria).exists()
+
         return request.method in permissions.SAFE_METHODS

@@ -4,7 +4,7 @@ from django.utils import timezone
 from django.urls import reverse
 from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
-from lms.models.user_models import UserEnrollment
+from lms.models.enrollment_models import UserEnrollment
 from lms.models.event_models import Event, EventInstance
 from lms.tests.helper_functions import login
 
