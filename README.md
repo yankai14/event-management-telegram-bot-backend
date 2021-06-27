@@ -8,9 +8,6 @@ Follow the below instructions:
 
 To install dependencies
 
-```bash
-pip install -r requirements.txt
-```
 
 Run postgresql service on localhost
 

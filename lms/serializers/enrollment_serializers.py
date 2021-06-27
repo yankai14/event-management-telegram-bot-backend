@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from rest_framework.exceptions import ValidationError
 from backend.exception_classes import ModelObjectAlreadyExist
-from lms.models.user_models import User, UserEnrollment
+from lms.models.user_models import User, UserEnrollment, EnrollmentStatus, EventRole
 from lms.models.event_models import EventInstance
 from lms.serializers.user_serializers import UserSerializer
 
@@ -14,6 +14,8 @@ class EnrollmentSerializer(serializers.ModelSerializer):
     eventInstanceCode = serializers.CharField(max_length=100, write_only=True)
     user = UserSerializer(read_only=True)
     eventInstance = serializers.StringRelatedField()
+    role = serializers.IntegerField()
+    status = serializers.IntegerField()
 
     class Meta:
         model = UserEnrollment
@@ -28,7 +30,12 @@ class EnrollmentSerializer(serializers.ModelSerializer):
             userCriteria = Q(user=user)
             eventInstanceCriteria = Q(eventInstance=eventInstance)
             if not UserEnrollment.objects.filter(userCriteria & eventInstanceCriteria).exists():
-                enrollment = UserEnrollment.objects.create(user=user, eventInstance=eventInstance, role=validated_data.get("role"))
+                enrollment = UserEnrollment.objects.create(
+                    user=user, 
+                    eventInstance=eventInstance, 
+                    role=validated_data.get("role"), 
+                    status=EnrollmentStatus.PENDING
+                )
             else:
                 raise ModelObjectAlreadyExist
         else:

@@ -14,6 +14,17 @@ class EnrollmentFilter(FilterSet):
         lookup_expr="exact"
     )
 
+    role = django_filters.NumberFilter(
+        field_name="role",
+        lookup_expr="exact",
+    )
+
+    status = django_filters.NumberFilter(
+        field_name="status",
+        lookup_expr="exact"
+    )
+
+
     class Meta:
         model = UserEnrollment
         fields =  ["id", "user", "eventInstance"]

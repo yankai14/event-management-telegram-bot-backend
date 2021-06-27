@@ -17,6 +17,7 @@ urlpatterns = [
     path("event-instance-folder-permissions/<str:permissionId>", views.event_views.EventInstanceFolderPermissionsViewSet.as_view(), name="event-instance-folder-permissions-view"),
 
     path("enrollment", views.enrollment_views.EnrollmentViewSet.as_view(), name="enrollment-view"),
+    path("enrollment/<int:pk>", views.enrollment_views.EnrollmentViewSet.as_view(), name="enrollment-view"),
 
     path("auth/user", views.user_views.UserViewSet.as_view(), name="user-view"),
     path("auth/user/<str:username>", views.user_views.UserViewSet.as_view(), name="user-view"),
