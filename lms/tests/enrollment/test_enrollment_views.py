@@ -4,7 +4,7 @@ from django.utils import timezone
 from django.urls import reverse
 from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
-from lms.models.user_models import UserEnrollment
+from lms.models.enrollment_models import EnrollmentStatus, UserEnrollment
 from lms.models.event_models import Event, EventInstance
 from lms.tests.helper_functions import login
 
@@ -12,7 +12,7 @@ from lms.tests.helper_functions import login
 class GetEnrollmentViewTest(APITestCase):
 
     def setUp(self):
-
+        
         user, self.client = login()
 
         event = {
@@ -74,7 +74,8 @@ class PostEnrollmentViewTest(APITestCase):
         self.validPayload = {
             "username": self.user.username,
             "eventInstanceCode": "Test101",
-            "role": 1
+            "role": 1,
+            "status": EnrollmentStatus.PENDING
         }
 
 
@@ -90,7 +91,7 @@ class PostEnrollmentViewTest(APITestCase):
 
     def test_duplicate_enrollment(self):
 
-        UserEnrollment.objects.create(user=self.user, eventInstance=self.eventInstance, role=1)
+        UserEnrollment.objects.create(user=self.user, eventInstance=self.eventInstance, role=1, status=EnrollmentStatus.PENDING)
         response = self.client.post(
             reverse("enrollment-view"),
             data=json.dumps(self.validPayload),
