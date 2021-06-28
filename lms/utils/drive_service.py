@@ -37,7 +37,7 @@ class GDriveService:
     @staticmethod
     def create_folder(folderName: str):
         folder_metadata = {
-            "name": "Invoices",
+            "name": folderName,
             "mimeType": "application/vnd.google-apps.folder"
         }
         folder: dict = service.files().create(body=folder_metadata, fields="id").execute()
