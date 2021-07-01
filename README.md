@@ -31,6 +31,34 @@ Start server
 python manage.py runserver
 ```
 
+
+## Docker + Docker compose
+Install [docker](https://docs.docker.com/engine/install/ubuntu/) and [docker-compose](https://docs.docker.com/compose/install/) using the official docs given.
+
+Remember to start docker service after installing .docker
+```bash
+sudo dockerd
+```
+
+Build docker image
+```bash
+sudo docker-compose build
+```
+
+In your .env file, the variable POSTGRES_HOST should be of this value POSTGRES_HOST = db.
+
+Run the below commands to make migrations and migrate db
+```bash
+python3 manage.py makemigrations lms
+sudo docker-compose run web python manage.py migrate
+```
+
+Run docker image
+```bash
+sudo docker-compose up
+```
+
+
 ## API Endpoints
 
 Download and install Postman GUI [here](https://www.postman.com/).
