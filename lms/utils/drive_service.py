@@ -16,7 +16,7 @@ credentials = service_account.Credentials.from_service_account_file(SERVICE_ACCO
 service = build("drive", "v3", credentials=credentials)
 
 
-class GDriveService:
+class zGDriveService:
 
     @staticmethod
     def upload_file(filePath: str, fileName: str, folderId: str, mimetypes: str):
@@ -37,7 +37,7 @@ class GDriveService:
     @staticmethod
     def create_folder(folderName: str):
         folder_metadata = {
-            "name": "Invoices",
+            "name": folderName,
             "mimeType": "application/vnd.google-apps.folder"
         }
         folder: dict = service.files().create(body=folder_metadata, fields="id").execute()
