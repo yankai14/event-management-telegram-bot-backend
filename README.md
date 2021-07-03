@@ -22,14 +22,30 @@ Make migrations and migrate databases
 python manage.py makemigrations lms
 python manage.py migrate
 ```
-Run tests
-```bash
-python manage.py test
-```
 Start server
 ```bash
 python manage.py runserver
 ```
+
+## Run tests
+
+Generate a coverage report
+```bash
+coverage run --omit='*/venv/*' manage.py test
+```
+
+Read coverage report
+```bash
+coverage report
+```
+
+To get a UI coverage report for better analysis,
+1. Install Live Server on VS Code (Optional)
+2.  Run the command below in your terminal, the folder htmlcov should be generated
+```bash
+coverage html
+```
+3. Search for the folder index.html and open it on liveshare or on your file explorercoverage run --omit='*/venv/*' manage.py test
 
 
 ## Docker + Docker compose
