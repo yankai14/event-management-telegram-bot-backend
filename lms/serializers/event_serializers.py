@@ -23,11 +23,11 @@ class EventInstanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = EventInstance
         fields = "__all__"
-        
 
-    def create(self, validated_data:dict):
+    def create(self, validated_data: dict):
         if self.is_valid():
-            event = get_object_or_404(Event, eventCode=validated_data.get("eventCode"))
+            event = get_object_or_404(
+                Event, eventCode=validated_data.get("eventCode"))
             if EventInstance.objects.filter(eventInstanceCode=validated_data["eventInstanceCode"]).exists():
                 raise ModelObjectAlreadyExist(f"EventInstance already exist")
             else:
@@ -45,37 +45,41 @@ class EventInstanceSerializer(serializers.ModelSerializer):
             raise ValidationError(self.errors)
         return eventInstance
 
+
 class EventInstanceFolderPermissionsSerializer(serializers.ModelSerializer):
 
     user = UserSerializer(read_only=True)
     folder = serializers.StringRelatedField()
+
     class Meta:
         model = EventInstanceFolderPermissions
         fields = "__all__"
-        
+
 
 class EventInstanceFolderSerializer(serializers.ModelSerializer):
 
     eventInstance = serializers.StringRelatedField()
-    permissions = EventInstanceFolderPermissionsSerializer(read_only=True, many=True)
+    permissions = EventInstanceFolderPermissionsSerializer(
+        read_only=True, many=True)
     eventInstanceCode = serializers.CharField(max_length=100, write_only=True)
+
     class Meta:
         model = EventInstanceFolder
         fields = "__all__"
         read_only_fields = ["folderId"]
 
-
     def create(self, validated_data: dict):
         if self.is_valid():
             eventInstanceCode = validated_data.get("eventInstanceCode")
-            eventInstance = get_object_or_404(EventInstance, eventInstanceCode=eventInstanceCode)
+            eventInstance = get_object_or_404(
+                EventInstance, eventInstanceCode=eventInstanceCode)
             folderName = validated_data.get("folderName")
 
             folderId = GDriveService.create_folder(folderName)
             eventInstanceFolder = EventInstanceFolder.objects.create(
-                folderId = folderId,
-                folderName = validated_data.get("folderName"),
-                eventInstance = eventInstance
+                folderId=folderId,
+                folderName=validated_data.get("folderName"),
+                eventInstance=eventInstance
             )
 
         else:
@@ -90,7 +94,7 @@ class EventInstanceFolderPermissionsSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     folderId = serializers.CharField(max_length=200, write_only=True)
     username = serializers.CharField(max_length=100, write_only=True)
-                
+
     class Meta:
         model = EventInstanceFolderPermissions
         fields = "__all__"
@@ -109,16 +113,17 @@ class EventInstanceFolderPermissionsSerializer(serializers.ModelSerializer):
             folderCriteria = Q(folder=folder)
 
             if not EventInstanceFolderPermissions.objects.filter(userCriteria & folderCriteria).exists():
-                permissionId = GDriveService.give_permission(fileId=folderId, role=folderRole, granteeEmail=user.email)
+                permissionId = GDriveService.give_permission(
+                    fileId=folderId, role=folderRole, granteeEmail=user.email)
                 eventInstanceFolderPermission = EventInstanceFolderPermissions.objects.create(
-                    permissionId = permissionId,
-                    user = user,
-                    folder = folder,
-                    folderRole = folderRole
+                    permissionId=permissionId,
+                    user=user,
+                    folder=folder,
+                    folderRole=folderRole
                 )
             else:
                 raise ModelObjectAlreadyExist
-        
+
         else:
             raise ValidationError(self.errors)
 

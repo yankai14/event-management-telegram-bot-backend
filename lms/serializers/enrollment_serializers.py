@@ -21,20 +21,23 @@ class EnrollmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserEnrollment
         fields = "__all__"
-        extra_kwargs = {"user": {"read_only": True}, "eventInstance": {"read_only": True}}
+        extra_kwargs = {"user": {"read_only": True},
+                        "eventInstance": {"read_only": True}}
 
     def create(self, validated_data):
         if self.is_valid():
-            user = get_object_or_404(User, username=validated_data.get("username", None))
-            eventInstance = get_object_or_404(EventInstance, eventInstanceCode=validated_data.get("eventInstanceCode", None))
+            user = get_object_or_404(
+                User, username=validated_data.get("username", None))
+            eventInstance = get_object_or_404(
+                EventInstance, eventInstanceCode=validated_data.get("eventInstanceCode", None))
 
             userCriteria = Q(user=user)
             eventInstanceCriteria = Q(eventInstance=eventInstance)
             if not UserEnrollment.objects.filter(userCriteria & eventInstanceCriteria).exists():
                 enrollment = UserEnrollment.objects.create(
-                    user=user, 
-                    eventInstance=eventInstance, 
-                    role=validated_data.get("role"), 
+                    user=user,
+                    eventInstance=eventInstance,
+                    role=validated_data.get("role"),
                     status=EnrollmentStatus.PENDING
                 )
             else:

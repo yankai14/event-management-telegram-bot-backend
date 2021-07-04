@@ -1,12 +1,12 @@
 from google.oauth2 import service_account
 from googleapiclient.discovery import build, MediaFileUpload
-import requests
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
-SCOPES = ["https://www.googleapis.com/auth/sqlservice.admin"]
+SCOPES = ["https://www.googleapis.com/auth/sqlservice.admin",
+          "https://www.googleapis.com/auth/drive"]
 SERVICE_ACCOUNT_FILE = os.getenv("GOOGLE_OAUTH")
 
 # Authentication
@@ -32,7 +32,7 @@ class GDriveService:
 
     @staticmethod
     def delete_file_or_folder(fileId: str):
-        service.files().delete(fileId="15M5I0IugIM9t6lx-dpA9OpyeZz3aD9eM").execute()
+        service.files().delete(fileId=fileId).execute()
 
     @staticmethod
     def create_folder(folderName: str):
@@ -58,4 +58,4 @@ class GDriveService:
 
     @staticmethod
     def delete_permission(fileId: str, permissionId: str):
-        service.permissions().delete(fileId=fileId, permissionId=permissionId)
+        service.permissions().delete(fileId=fileId, permissionId=permissionId).execute()

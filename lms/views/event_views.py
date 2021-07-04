@@ -150,8 +150,10 @@ class EventInstanceFolderPermissionsViewSet(mixins.ListModelMixin,
     # Overwrite destroy method to integrate GDriveService
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
+        folderId = instance.folder.folderId
         self.perform_destroy(instance)
-        GDriveService.delete_permission(self.kwargs.get('permissionId'))
+        permissionId = self.kwargs.get('permissionId')
+        GDriveService.delete_permission(folderId, permissionId)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, *args, **kwargs):
