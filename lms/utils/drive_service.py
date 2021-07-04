@@ -16,7 +16,7 @@ credentials = service_account.Credentials.from_service_account_file(SERVICE_ACCO
 service = build("drive", "v3", credentials=credentials)
 
 
-class zGDriveService:
+class GDriveService:
 
     @staticmethod
     def upload_file(filePath: str, fileName: str, folderId: str, mimetypes: str):
