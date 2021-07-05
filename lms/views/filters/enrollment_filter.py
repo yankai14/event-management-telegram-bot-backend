@@ -9,11 +9,7 @@ class EnrollmentFilter(FilterSet):
         lookup_expr="exact"
     )
 
-    user = django_filters.CharFilter(
-        field_name="user__username", 
-        lookup_expr="exact"
-    )
 
     class Meta:
         model = UserEnrollment
-        fields =  ["id", "user", "eventInstance"]
+        fields =  ["id", "eventInstance"]

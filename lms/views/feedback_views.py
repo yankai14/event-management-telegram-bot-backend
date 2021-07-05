@@ -15,7 +15,7 @@ class EventInstanceFeedbackViewSet(mixins.ListModelMixin,
     
     queryset = EventInstanceFeedback.objects.all()
     serializer_class = EventInstanceFeedbackSerializer
-    permission_classes = [permissions.IsAuthenticated,
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
                           FeedbackPermission]
                           
     filter_backends = [DjangoFilterBackend]
