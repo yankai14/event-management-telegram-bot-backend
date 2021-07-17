@@ -7,6 +7,7 @@ from lms.models.user_models import User
 from lms.models.enrollment_models import EnrollmentStatus, UserEnrollment
 from lms.models.event_models import EventInstance
 from lms.serializers.user_serializers import UserSerializer
+from lms.serializers.event_serializers import EventInstanceSerializer
 
 
 class EnrollmentSerializer(serializers.ModelSerializer):
@@ -14,7 +15,7 @@ class EnrollmentSerializer(serializers.ModelSerializer):
     username = serializers.CharField(max_length=100, write_only=True)
     eventInstanceCode = serializers.CharField(max_length=100, write_only=True)
     user = UserSerializer(read_only=True)
-    eventInstance = serializers.StringRelatedField()
+    eventInstance = EventInstanceSerializer(read_only=True)
     role = serializers.IntegerField()
     status = serializers.IntegerField()
 

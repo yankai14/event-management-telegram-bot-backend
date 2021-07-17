@@ -816,7 +816,7 @@ class DeleteEventFolderPermissionsTest(APITestCase):
         url = reverse('event-instance-folder-permissions-view', kwargs={'permissionId': 'testId'})
         response = self.client.delete(url)
         permissionExist = EventInstanceFolderPermissions.objects.filter(permissionId = 'testId').exists()
-        GDriveService.delete_permission.assert_called_once_with('testId')
+        GDriveService.delete_permission.assert_called_once_with('someTestId', 'testId')
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(permissionExist, False)
 
