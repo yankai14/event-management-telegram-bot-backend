@@ -14,6 +14,11 @@ class EventInstanceFilter(FilterSet):
         field_name="event__eventCode", 
         lookup_expr="exact"
     )
+
+    isOpenForSignUps = django_filters.BooleanFilter(
+        field_name="isOpenForSignUps",
+        lookup_expr="exact"
+    )
     class Meta:
         model = EventInstance
         fields =  ["id", "event", "eventInstanceCode", "isCompleted"]

@@ -14,7 +14,7 @@ urlpatterns = [
     path("event-instance-folder/<str:folderId>", views.event_views.EventInstanceFolderViewSet.as_view(), name="event-instance-folder-view"),
 
     path("event-instance-folder-permissions", views.event_views.EventInstanceFolderPermissionsViewSet.as_view(), name="event-instance-folder-permissions-view"),
-    path("event-instance-folder-permissions/<str:permissionId>", views.event_views.EventInstanceFolderPermissionsViewSet.as_view(), name="event-instance-folder-permissions-view"),
+    path("event-instance-folder-permissions/<str:eventInstanceCode>/<str:username>", views.event_views.EventInstanceFolderPermissionsViewSet.as_view(), name="event-instance-folder-permissions-view"),
 
     path("enrollment", views.enrollment_views.EnrollmentViewSet.as_view(), name="enrollment-view"),
     path("enrollment/<int:pk>", views.enrollment_views.EnrollmentViewSet.as_view(), name="enrollment-view"),

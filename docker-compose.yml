@@ -7,6 +7,7 @@ services:
       - .env
 
   web:
+    image: public.ecr.aws/w0f5g4k6/javaweb:latest
     build: .
     command: python manage.py runserver 0.0.0.0:8000
     volumes:

@@ -75,13 +75,15 @@ class EventInstanceFolderSerializer(serializers.ModelSerializer):
                 EventInstance, eventInstanceCode=eventInstanceCode)
             folderName = validated_data.get("folderName")
 
-            folderId = GDriveService.create_folder(folderName)
-            eventInstanceFolder = EventInstanceFolder.objects.create(
-                folderId=folderId,
-                folderName=validated_data.get("folderName"),
-                eventInstance=eventInstance
-            )
-
+            if not EventInstanceFolder.objects.filter(eventInstance=eventInstance).exists():
+                folderId = GDriveService.create_folder(folderName)
+                eventInstanceFolder = EventInstanceFolder.objects.create(
+                    folderId=folderId,
+                    folderName=validated_data.get("folderName"),
+                    eventInstance=eventInstance
+                )
+            else:
+                raise ModelObjectAlreadyExist(f"Folder with event instance ${eventInstance} already exist")
         else:
             raise ValidationError(self.errors)
 
@@ -90,7 +92,7 @@ class EventInstanceFolderSerializer(serializers.ModelSerializer):
 
 class EventInstanceFolderPermissionsSerializer(serializers.ModelSerializer):
 
-    folder = EventInstanceFolderSerializer(read_only=True)
+    folder = EventInstanceFolderSerializer(read_only=True, many=True)
     user = UserSerializer(read_only=True)
     folderId = serializers.CharField(max_length=200, write_only=True)
     username = serializers.CharField(max_length=100, write_only=True)
@@ -110,17 +112,17 @@ class EventInstanceFolderPermissionsSerializer(serializers.ModelSerializer):
             user = get_object_or_404(User, username=username)
 
             userCriteria = Q(user=user)
-            folderCriteria = Q(folder=folder)
+            folderCriteria = Q(folder__folderId=folderId)
 
-            if not EventInstanceFolderPermissions.objects.filter(userCriteria & folderCriteria).exists():
+            if not EventInstanceFolderPermissions.objects.filter(userCriteria & folderCriteria):
                 permissionId = GDriveService.give_permission(
                     fileId=folderId, role=folderRole, granteeEmail=user.email)
-                eventInstanceFolderPermission = EventInstanceFolderPermissions.objects.create(
+                eventInstanceFolderPermission, _ = EventInstanceFolderPermissions.objects.update_or_create(
                     permissionId=permissionId,
                     user=user,
-                    folder=folder,
                     folderRole=folderRole
                 )
+                eventInstanceFolderPermission.folder.add(folder)
             else:
                 raise ModelObjectAlreadyExist
 

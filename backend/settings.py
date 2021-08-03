@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     'corsheaders',
 
     # Our apps
-    'lms',
+    'lms.apps.LmsConfig',
 ]
 
 CORS_ALLOWED_ORIGINS = [
@@ -146,7 +146,7 @@ STATIC_URL = '/static/'
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 50,
+    'PAGE_SIZE': 15,
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',

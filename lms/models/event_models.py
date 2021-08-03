@@ -27,7 +27,9 @@ class EventInstance(models.Model):
     fee = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     isCompleted = models.BooleanField(default=False)
     event = models.ForeignKey('Event', null=True, on_delete=models.CASCADE)
-    # vacancy = models.IntegerField(blank=False, null=True)
+    vacancy = models.IntegerField(blank=False, null=True)
+    vacancyLeft = models.IntegerField(blank=False, null=True)
+    isOpenForSignUps = models.BooleanField(default=True)
 
     def __str__(self):
         return self.eventInstanceCode
@@ -37,7 +39,7 @@ class EventInstanceFolder(models.Model):
 
     folderId = models.CharField(max_length=250, blank=False, null=False, unique=True)
     folderName = models.CharField(max_length=200, blank=False, null=True, unique=True)
-    eventInstance = models.ForeignKey('EventInstance', null=True, on_delete=models.CASCADE)
+    eventInstance = models.OneToOneField('EventInstance', null=True, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.folderId
@@ -46,8 +48,8 @@ class EventInstanceFolder(models.Model):
 class EventInstanceFolderPermissions(models.Model):
 
     permissionId = models.CharField(max_length=250, blank=False, null=False, unique=True)
-    user = models.ForeignKey('User', null=True, on_delete=models.CASCADE)
-    folder = models.ForeignKey('EventInstanceFolder', null=True, on_delete=models.CASCADE)
+    user = models.OneToOneField('User', null=True, on_delete=models.CASCADE)
+    folder = models.ManyToManyField('EventInstanceFolder')
     folderRole = models.CharField(max_length=50, blank=False, null=False, default="reader")
 
     def __str__(self):

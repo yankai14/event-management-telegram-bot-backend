@@ -1,3 +1,5 @@
+from backend.utils import MultipleFieldLookupORMixin
+from django.shortcuts import get_object_or_404
 from rest_framework import permissions, mixins, generics
 from rest_framework.response import Response
 from rest_framework import status
@@ -133,13 +135,14 @@ class EventInstanceFolderPermissionsViewSet(mixins.ListModelMixin,
                 mixins.CreateModelMixin,
                 mixins.UpdateModelMixin,
                 mixins.DestroyModelMixin,
-                generics.GenericAPIView):
+                generics.GenericAPIView,
+                MultipleFieldLookupORMixin):
 
     queryset = EventInstanceFolderPermissions.objects.all()
     serializer_class = EventInstanceFolderPermissionsSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = EventInstanceFolderPermissionsFilter
-    lookup_field = "permissionId"
+    lookup_field = ["eventInstanceCode", "username"]
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
@@ -149,11 +152,15 @@ class EventInstanceFolderPermissionsViewSet(mixins.ListModelMixin,
 
     # Overwrite destroy method to integrate GDriveService
     def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        folderId = instance.folder.folderId
-        self.perform_destroy(instance)
-        permissionId = self.kwargs.get('permissionId')
-        GDriveService.delete_permission(folderId, permissionId)
+        eventInstanceCode = self.kwargs.get('eventInstanceCode')
+        username = self.kwargs.get('username')
+        
+        permission = get_object_or_404(EventInstanceFolderPermissions, user__username=username)
+        folder = get_object_or_404(EventInstanceFolder, eventInstance__eventInstanceCode=eventInstanceCode)
+        
+        GDriveService.delete_permission(folder.folderId, permission.permissionId)
+        permission.folder.remove(folder)
+
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, *args, **kwargs):
