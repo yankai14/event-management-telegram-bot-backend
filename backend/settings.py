@@ -14,6 +14,8 @@ from pathlib import Path
 import os
 from django.conf import settings
 from dotenv import load_dotenv
+import dj_database_url
+
 # settings.py
 
 load_dotenv()
@@ -103,6 +105,9 @@ DATABASES = {
         'PORT': os.getenv("POSTGRES_PORT"),
     }
 }
+
+db_from_env = dj_database_url.config(conn_max_age=600)
+DATABASES['defaut'].update(db_from_env)
 
 
 # Password validation
