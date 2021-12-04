@@ -37,7 +37,7 @@ class EnrollmentSerializer(serializers.ModelSerializer):
                     user=user,
                     eventInstance=eventInstance,
                     role=validated_data.get("role"),
-                    status=EnrollmentStatus.PENDING
+                    enrollmentStatus=EnrollmentStatus.PENDING
                 )
             else:
                 raise ModelObjectAlreadyExist
