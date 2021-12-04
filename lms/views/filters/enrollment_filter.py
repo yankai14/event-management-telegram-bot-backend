@@ -9,6 +9,10 @@ class EnrollmentFilter(FilterSet):
         lookup_expr="exact"
     )
 
+    user = django_filters.CharFilter(
+        field_name="user__username", 
+        lookup_expr="exact"
+    )
 
     role = django_filters.NumberFilter(
         field_name="role",
