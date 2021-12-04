@@ -35,10 +35,7 @@ class EventViewSet(mixins.ListModelMixin,
             return [permissions.IsAdminUser()]
 
     def get(self, request, *args, **kwargs):
-        """
-        Return a list of events.
-        """
-        if self.request.query_params.get("eventCode", None):
+        if kwargs.get("eventCode"):
             return self.retrieve(request, *args, **kwargs)
         return self.list(request, *args, **kwargs)
 
@@ -72,14 +69,23 @@ class EventInstanceViewSet(mixins.ListModelMixin,
     serializer_class = EventInstanceSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = EventInstanceFilter
-    lookup_field = "eventInstanceCode"
+    lookup_field = "eventInstanceCode"   
 
     def get_permissions(self):
         if self.request.method == 'GET':
             return [permissions.IsAuthenticated()]
         else:
             return [permissions.IsAdminUser()]
-    
+
+    # Overwrite get_queryset to filter against eventCode url parameter
+     # Check documentation for more info https://www.django-rest-framework.org/api-guide/filtering/#filtering-against-query-parameters
+    def get_queryset(self):
+        queryset = EventInstance.objects.all()
+        eventCode = self.request.query_params.get("eventCode")
+        if eventCode is not None:
+            queryset = queryset.filter(event__eventCode=eventCode)
+        return queryset
+
     def get(self, request, *args, **kwargs):
         if kwargs.get("eventInstanceCode"):
             return self.retrieve(request, *args, **kwargs)
