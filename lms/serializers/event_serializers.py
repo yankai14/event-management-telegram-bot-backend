@@ -81,6 +81,7 @@ class EventInstanceFolderSerializer(serializers.ModelSerializer):
                 folderName=validated_data.get("folderName"),
                 eventInstance=eventInstance
             )
+
         else:
             raise ValidationError(self.errors)
 
