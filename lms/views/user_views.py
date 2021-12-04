@@ -6,6 +6,8 @@ from rest_framework import status
 from rest_framework import  mixins
 from lms.models.user_models import User
 from lms.serializers.user_serializers import UserSerializer
+from lms.views.filters.user_filter import UserFilter
+from django_filters.rest_framework import DjangoFilterBackend
 
 class UserViewSet(mixins.ListModelMixin,
                 mixins.RetrieveModelMixin,
@@ -16,6 +18,9 @@ class UserViewSet(mixins.ListModelMixin,
     queryset = User.objects.all()
     serializer_class = UserSerializer
     lookup_field = "username"
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = UserFilter
+
 
     def get_object(self):
         username = self.request.query_params.get("username", None)
