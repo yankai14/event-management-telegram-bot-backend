@@ -39,7 +39,8 @@ class EventInstanceSerializer(serializers.ModelSerializer):
                     dates=validated_data.get("dates"),
                     fee=validated_data.get("fee", 0),
                     isCompleted=validated_data.get("isCompleted"),
-                    event=event
+                    event=event,
+                    vacancy=validated_data.get("vacancy")
                 )
         else:
             raise ValidationError(self.errors)
