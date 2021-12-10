@@ -14,6 +14,7 @@ class EnrollmentStatus(models.IntegerChoices):
     ENROLLED = 2
     REJECTED = 3
     WITHDRAWN = 4
+    AWATING_PAYMENT = 5
 
 class UserEnrollment(models.Model):
     ''' Store administrative information about participant'''
